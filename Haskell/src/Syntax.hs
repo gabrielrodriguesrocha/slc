@@ -8,14 +8,17 @@ data Expr
     | Var String
     | Call Name [Expr]
     | BinaryOp Name Expr Expr
-    | CompOp Name Expr Expr
     deriving (Eq, Ord, Show)
+
+data Comparison
+    = CompOp Name Expr Expr
+    deriving(Eq, Ord, Show)
 
 data Stmt
     = Assign Name Expr
-    | If Expr [Stmt] (Maybe Stmt)
+    | If Comparison [Stmt] (Maybe Stmt)
     | Else [Stmt]
-    | For (Stmt, Expr, Stmt) [Stmt]
+    | For (Stmt, Comparison, Stmt) [Stmt]
     | ReadStmt [Name]
     | WriteStmt [Name]
     | ReturnStmt Expr
