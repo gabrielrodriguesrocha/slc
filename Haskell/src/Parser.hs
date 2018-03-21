@@ -26,11 +26,7 @@ variable = Var <$> identifier
 
 binop = Expr.Infix (BinaryOp <$> op) Expr.AssocLeft
 
-compop = Expr.Infix (CompOp <$> op) Expr.AssocLeft
-
-binaryE s assoc = Expr.Infix (reservedOp s >> return (BinaryOp s)) assoc
-
-binaryC s assoc = Expr.Infix (reservedOp s >> return (CompOp s)) assoc
+binary s assoc = Expr.Infix (reservedOp s >> return (BinaryOp s)) assoc
 
 op :: Parser String
 op = do
@@ -39,21 +35,24 @@ op = do
   whitespace
   return o
 
-binops = [[binaryE "*" Expr.AssocLeft,
-    binaryE "/" Expr.AssocLeft]
-  ,[binaryE "+" Expr.AssocLeft,
-    binaryE "-" Expr.AssocLeft]]
+compop = (reservedOp ">" >> return ">") 
+     <|> (reservedOp "<" >> return "<")
+     <|> (reservedOp "=" >> return "=")
 
-compops = [[binaryC "<" Expr.AssocLeft,
-  binaryC ">" Expr.AssocLeft,
-  binaryC "=" Expr.AssocLeft]]
+binops = [[binary "*" Expr.AssocLeft,
+    binary "/" Expr.AssocLeft]
+  ,[binary "+" Expr.AssocLeft,
+    binary "-" Expr.AssocLeft]]
 
 expr :: Parser Expr
-expr = try $ Expr.buildExpressionParser (binops ++ [[binop]]) factor 
-    <|> try call
+expr = Expr.buildExpressionParser (binops ++ [[binop]]) factor 
 
-comparison :: Parser Expr -- Problema na geração da AST
-comparison = Expr.buildExpressionParser (compops ++ [[compop]]) expr
+comparison :: Parser Comparison -- Problema na geração da AST
+comparison = do
+  rhs <- factor 
+  op <- compop 
+  lhs <- factor
+  return $ CompOp op rhs lhs
 
 program :: Parser Program
 program = do
@@ -61,7 +60,7 @@ program = do
   id <- identifier
   reserved "BEGIN"
   decl <- (declaration `endBy` semi) <?> "Declarations"
-  body <- (many $ function) <?> "Functions"
+  body <- (many $ function) 
   reserved "END"
   return $ Program id decl body
 
@@ -112,7 +111,7 @@ voidFunction = do
   args <- parens $ commaSep param
   reserved "BEGIN"
   decl <- (declaration `endBy` semi) <?> "Declarations"
-  body <- stmts <?> "Statements"
+  body <- stmts 
   reserved "END"
   return $ VoidFunction name args decl body
 
@@ -124,7 +123,7 @@ floatFunction = do
   args <- parens $ commaSep param
   reserved "BEGIN"
   decl <- (declaration `endBy` semi) <?> "Declarations"
-  body <- stmts <?> "Statements"
+  body <- stmts 
   reserved "END"
   return $ FloatFunction name args decl body
 
@@ -136,7 +135,7 @@ intFunction = do
   args <- parens $ commaSep param
   reserved "BEGIN"
   decl <- (declaration `endBy` semi) <?> "Declarations"
-  body <- stmts <?> "Statements"
+  body <- stmts 
   reserved "END"
   return $ IntFunction name args decl body
 
@@ -156,7 +155,7 @@ assignStmt = do
 ifStmt :: Parser Stmt
 ifStmt = do
   reserved "IF"
-  cond <- parens comparison
+  cond <- parens comparison <?> "Condition"
   reserved "THEN"
   tr <- stmts
   fl <- optionMaybe elsePart
@@ -175,7 +174,7 @@ forStmt = do
   header <- parens $ do
     start <- assignStmt
     reservedOp ";"
-    cond <- comparison
+    cond <- comparison <?> "Condition"
     reservedOp ";"
     update <- assignStmt
     return (start, cond, update)
