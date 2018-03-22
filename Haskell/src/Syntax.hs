@@ -22,6 +22,7 @@ data Stmt
     | ReadStmt [Name]
     | WriteStmt [Name]
     | ReturnStmt Expr
+    | CallStmt Name [Name]
     deriving (Eq, Ord, Show)
 
 data Decl

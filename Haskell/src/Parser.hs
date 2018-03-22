@@ -203,6 +203,14 @@ returnStmt = do
   reservedOp ";"
   return $ ReturnStmt body
 
+callStmt :: Parser Stmt
+callStmt = do
+   func <- identifier;
+   par <- parens $ commaSep identifier;
+   reservedOp ";"
+   return $ CallStmt func par
+
+
 stmt :: Parser Stmt
 stmt = try assignStmt
   <|> try readStmt
@@ -210,6 +218,7 @@ stmt = try assignStmt
   <|> try returnStmt
   <|> try ifStmt
   <|> try forStmt
+  <|> try callStmt
 
 stmts :: Parser [Stmt]
 stmts = many stmt
