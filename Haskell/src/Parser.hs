@@ -24,7 +24,7 @@ stringVar = Var <$> stringLiteral
 variable :: Parser Expr
 variable = Var <$> identifier
 
-binop = Expr.Infix (BinaryOp <$> op) Expr.AssocLeft
+--binop = Expr.Infix (BinaryOp <$> op) Expr.AssocLeft
 
 binary s assoc = Expr.Infix (reservedOp s >> return (BinaryOp s)) assoc
 
@@ -45,13 +45,13 @@ binops = [[binary "*" Expr.AssocLeft,
     binary "-" Expr.AssocLeft]]
 
 expr :: Parser Expr
-expr = Expr.buildExpressionParser (binops ++ [[binop]]) factor 
+expr = Expr.buildExpressionParser binops factor 
 
 comparison :: Parser Comparison -- Problema na geração da AST
 comparison = do
-  rhs <- factor 
+  rhs <- expr 
   op <- compop 
-  lhs <- factor
+  lhs <- expr
   return $ CompOp op rhs lhs
 
 program :: Parser Program
