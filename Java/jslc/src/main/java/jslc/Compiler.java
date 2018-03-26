@@ -79,7 +79,7 @@ public class Compiler {
             if (lexer.token != Symbol.ASSIGN)
                 error.signal("Esperava ':=''");
             lexer.nextToken();
-            if (lexer.token != Symbol.)
+            if (lexer.token != Symbol.QUOTE) // falta o símbolo de aspas?
         }
 	}
 
