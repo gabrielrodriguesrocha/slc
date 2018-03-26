@@ -1,0 +1,34 @@
+PROGRAM medium
+BEGIN
+	FUNCTION INT main()
+	-- Asks for user input, which should be a non-negative number n
+	-- And calculates the (n!)-th Fibonacci number
+	-- Mutable variables in this example mean it might be more complicated to compile than EX03
+	BEGIN
+		INT n, prod;
+		INT fib1, fib2, res;
+		STRING error := "Factorial not defined for negative numbers";
+		
+		READ(n);
+		
+		IF (n < 0) THEN
+			WRITE(error);
+			RETURN 1;
+		ELSE
+			FOR (prod := 1; n > 0; n := n - 1)
+				prod := prod * n
+			ENDFOR
+		ENDIF
+
+		fib1 := 1
+		fib2 := 1
+		FOR (res := 0; prod > 0; prod := prod - 1)
+			res := fib1 + fib2
+			fib1 := fib2
+			fib2 := res
+		ENDFOR
+	
+		WRITE(res);
+		RETURN 0;
+	END
+END

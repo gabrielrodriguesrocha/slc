@@ -1,0 +1,47 @@
+PROGRAM testEmAll
+BEGIN
+    INT x,y;
+    FLOAT z,w;
+    STRING a3 := "a3";
+
+	FUNCTION INT a(INT x)
+	BEGIN
+        x := x + 1 * x * x
+		IF (1<1) THEN
+            RETURN a(x+1);
+        ENDIF
+	END
+
+    FUNCTION VOID b(FLOAT x)
+    BEGIN
+        IF (x > 0) THEN
+            x := x + 1
+        ELSE
+            x := x - 1
+        ENDIF -- Comments
+    END -- In
+-- Unusual
+    FUNCTION FLOAT c() -- Places
+    BEGIN
+        RETURN 3.0;
+    END
+
+    FUNCTION VOID empty()
+    BEGIN
+    END
+
+	FUNCTION INT main()
+	BEGIN
+		INT a;
+        FLOAT b,c;
+		STRING error := "Factorial not defined for negative numbers";
+		
+		READ(a);
+
+        FOR (b := 0; b < a(a) + b(a) + c(); b := b + 1)
+        ENDFOR
+
+		WRITE(b);
+		RETURN 0;
+	END
+END
