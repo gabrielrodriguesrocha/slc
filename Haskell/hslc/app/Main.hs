@@ -12,7 +12,7 @@ process line = do
   let res = parseToplevel line
   case res of
     Left err -> print err
-    Right ex -> mapM_ print ex
+    Right ex -> print ex
 
 processFile :: String -> IO ()
 processFile fname = readFile fname >>= process

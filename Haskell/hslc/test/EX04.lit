@@ -7,7 +7,7 @@ BEGIN
 	FUNCTION INT a(INT x)
 	BEGIN
         x := x + 1 * x * x
-		IF (x = 0) THEN
+		IF (1<1) THEN
             RETURN a(x+1);
         ENDIF
 	END

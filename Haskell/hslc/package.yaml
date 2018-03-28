@@ -1,0 +1,51 @@
+name:                hslc
+version:             0.1.0.0
+github:              "gabrielrodriguesrocha/hslc"
+license:             BSD3
+author:              "Gabriel Rodrigues Rocha"
+maintainer:          "gabrielrocha.comp@gmail.com"
+copyright:           "none"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on Github at <https://github.com/gabrielrodriguesrocha/hslc#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- mtl
+- haskeline
+- parsec
+
+library:
+  source-dirs: src
+
+executables:
+  hslc-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hslc
+
+tests:
+  hslc-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hslc
