@@ -81,66 +81,106 @@ public class Lexer {
     }
 
     String aux = "";
-    while (Character.isDigit(input[tokenPos++])) {
+
+    if (input[tokenPos] == '-') { // Números negativos
         aux += input[tokenPos];
+        tokenPos++;
+    }
+
+    if (input[tokenPos] == '.') { // Floats sem unidade
+        aux += input[tokenPos];
+        tokenPos++;
+        isFloat = true;
+    }
+
+    while (Character.isDigit(input[tokenPos])) {
+        aux += input[tokenPos];
+        tokenPos++;
+        if (input[tokenPos] == '.') {
+            isFloat = true;
+        }
     }
     if(!aux.equals("")) {
-        numberValue = Integer.parseInt(aux);
-        if (numberValue > MaxValueInteger) {
-            error.signal("Numero superior ao máximo habilitado");
+        if (isFloat == true) {
+            floatValue = Float.parseFloat(aux);
+            if (floatValue > Float.MAX_VALUE) {
+                error.signal("Número superior ao máximo habilitado");
+            }
+            else if (floatValue < - Float.MIN_VALUE){
+                error.signal("Número inferior ao mínimo habilitado")
+            }
+        }
+        else {
+            intValue = Integer.parseInt(aux);
+            if (intValue > Integer.MAX_VALUE) {
+                error.signal("Número superior ao máximo habilitado");
+            }
+            else if (intValue < Integer.MIN_VALUE) {
+                error.signal("Número inferior ao mínimo habilitado")
+            }
         }
         token = Symbol.NUMBER;
     }
     else {
-        while (Character.isLetter(input[tokenPos++])) {
-            aux += input[tokenPos];
-        }
-        if (!aux.equals("")) {
-            token = keywordsTable.get(aux);
-            if (token == null) {
-                token = Symbol.IDENT;
-                stringValue = aux;
-            }
+        if (input[tokenPos] == '"') {
+            do {
+                aux += input[tokenPos];
+            } while (input[tokenPos] != '"');
+            token = Symbol.IDENT;
+            stringValue = aux;
         }
         else {
-            switch (input[tokenPos]) {
-                case '+':
-                        token = Symbol.PLUS;
-                        break;
-                case '-':
-                        token = Symbol.MINUS;
-                        break;
-                case '/':
-                        token = Symbol.DIV;
-                        break;
-                case '*':
-                        token = Symbol.DIV;
-                        break;
-                case '=':
-                        token = Symbol.ASSIGN;
-                        break;
-                case ',':
-                        token = Symbol.COMMA;
-                        break;
-                case ';':
-                        token = Symbol.SEMICOLON;
-                        break;
-                case ':' :
-                        if (input[tokenPos+1] == '=') {
+            while (Character.isLetter(input[tokenPos])) {
+                aux += input[tokenPos];
+                tokenPos++;
+            }
+            if (!aux.equals("")) {
+                token = keywordsTable.get(aux);
+                if (token == null) {
+                    token = Symbol.IDENT;
+                    stringValue = aux;
+                }
+            }
+            else {
+                switch (input[tokenPos]) {
+                    case '+':
+                            token = Symbol.PLUS;
+                            break;
+                    case '-':
+                            token = Symbol.MINUS;
+                            break;
+                    case '/':
+                            token = Symbol.DIV;
+                            break;
+                    case '*':
+                            token = Symbol.DIV;
+                            break;
+                    case '=':
                             token = Symbol.ASSIGN;
-                            tokenPos++;
-                        }
-                        break;
-                case '(' :
-                        token = Symbol.LPAR;
-                        break;
-                case ')' :
-                        token = Symbol.RPAR;
-                        break;
-                default:
-                        error.signal("erro lexico");
-            }	
-            tokenPos++;
+                            break;
+                    case ',':
+                            token = Symbol.COMMA;
+                            break;
+                    case ';':
+                            token = Symbol.SEMICOLON;
+                            break;
+                    case ':' :
+                            if (input[tokenPos+1] == '=') {
+                                token = Symbol.ASSIGN;
+                                tokenPos++;
+                            }
+                            break;
+                    case '(' :
+                            token = Symbol.LPAR;
+                            break;
+                    case ')' :
+                            token = Symbol.RPAR;
+                            break;
+                    default:
+                            error.signal("erro lexico");
+                }	
+                tokenPos++;
+            }
         }
     }
 
@@ -191,8 +231,10 @@ public class Lexer {
     // current token
     public Symbol token;
     private String stringValue;
-    private int numberValue;
+    private int intValue;
+    private float floatValue;
     private char charValue;
+    private boolean isFloat;
     
     private int  tokenPos;
     //  input[lastTokenPos] is the last character of the last token

@@ -24,11 +24,21 @@ public class Compiler {
     
     // Program ::= Decl FuncDecl
     public void program(){
+        if (lexer.token != Symbol.PROGRAM)
+            error.signal("Esperava program");
+        lexer.nextToken();
+        if (lexer.token != Symbol.IDENT)
+            error.signal("Esperava nome do programa");
+        lexer.nextToken();
         if (lexer.token != Symbol.BEGIN)
             error.signal("Esperava begin");
         lexer.nextToken();
         decl();
+        lexer.nextToken();
         funcDecl();
+        lexer.nextToken();
+        if (lexer.token != Symbol.END)
+            error.signal("Esperava end");
     }
 
     // Decl ::= StringDeclList {Decl} | StringDeclList {Decl} | empty
@@ -79,9 +89,30 @@ public class Compiler {
             if (lexer.token != Symbol.ASSIGN)
                 error.signal("Esperava ':=''");
             lexer.nextToken();
-            if (lexer.token != Symbol.QUOTE) // falta o símbolo de aspas?
+            if (lexer.token != Symbol.IDENT)
+                error.signal("Esperava string ligeral");
+            lexer.nextToken();
+            if (lexer.token != Symbol.SEMICOLON)
+                error.signal("Esperava ;");
+            lexer.nextToken();
         }
-	}
+    }
+
+    public boolean anyType() {
+        return anyType() || lexer.token == Symbol.VOID;
+    }
+    
+    public void funcDecl() {
+        while(lexer.token == Symbol.FUNCTION) {
+            lexer.nextToken();
+            if (!anyType())
+                error.signal("Esperava tipo da função");
+            lexer.nextToken();
+            if (lexer.token != Symbol.IDENT)
+                error.signal("Esperava identificador");
+            //
+        }
+    }
 
     //AssignStatement ::= Variable '=' Expr ';'
     public void assignStatement(){
