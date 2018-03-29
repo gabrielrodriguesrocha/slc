@@ -134,12 +134,14 @@ public class Lexer {
             }
             if (!aux.equals("")) {
                 token = keywordsTable.get(aux);
-                if (token == null && tokenLen <= MaxIdentifierLength) {
-                    token = Symbol.IDENT;
-                    stringValue = aux;
+                if (token == null) {
+                    if (tokenLen <= MaxIdentifierLength) {
+                        token = Symbol.IDENT;
+                        stringValue = aux;
+                    }
+                    else
+					    error.signal("Identificador de comprimento superior ao máximo permitido.");
                 }
-				else
-					error.signal("Identificador de comprimento superior ao máximo permitido.");
             }
             else {
                 switch (input[tokenPos]) {
