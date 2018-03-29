@@ -1,14 +1,3 @@
-/*
- Program ::= 'begin' VarDecList ';' AssignStatment 'end'
- VarDecList ::= Variable | Variable ',' VarDecList
- Variable ::= Letter {Letter}
- Letter ::= 'A' | 'B' | ... | 'Z' | 'a' | ... |'z'
- AssignStatment ::= Variable '=' Expr ';'
- Expr ::= Oper  Expr Expr  | Number
- Oper ::= '+' | '-' | '*' | '/'
- Number ::= Digit {Digit}
- Digit ::= '0'| '1' | ... | '9'
- */
 
 package jslc.Lexer;
 
@@ -107,7 +96,7 @@ public class Lexer {
                 error.signal("Número superior ao máximo habilitado");
             }
             else if (floatValue < - Float.MIN_VALUE){
-                error.signal("Número inferior ao mínimo habilitado")
+                error.signal("Número inferior ao mínimo habilitado");
             }
         }
         else {
@@ -116,30 +105,40 @@ public class Lexer {
                 error.signal("Número superior ao máximo habilitado");
             }
             else if (intValue < Integer.MIN_VALUE) {
-                error.signal("Número inferior ao mínimo habilitado")
+                error.signal("Número inferior ao mínimo habilitado");
             }
         }
         token = Symbol.NUMBER;
     }
     else {
         if (input[tokenPos] == '"') {
+			tokenLen = 0;
             do {
                 aux += input[tokenPos];
-            } while (input[tokenPos] != '"');
+				tokenPos++;
+				tokenLen++;
+            } while (input[tokenPos] != '"' && tokenLen <= MaxStringLength);
+			if (tokenLen > MaxStringLength)
+				error.signal("String de comprimento superior ao máximo permitido");
             token = Symbol.IDENT;
             stringValue = aux;
         }
         else {
-            while (Character.isLetter(input[tokenPos])) {
+			tokenLen = 0;
+            while (Character.isLetter(input[tokenPos]) ||
+				   Character.isDigit(input[tokenPos])) {
                 aux += input[tokenPos];
                 tokenPos++;
+				tokenLen++;
             }
             if (!aux.equals("")) {
                 token = keywordsTable.get(aux);
-                if (token == null) {
+                if (token == null && tokenLen <= MaxIdentifierLength) {
                     token = Symbol.IDENT;
                     stringValue = aux;
                 }
+				else
+					error.signal("Identificador de comprimento superior ao máximo permitido.");
             }
             else {
                 switch (input[tokenPos]) {
@@ -221,11 +220,15 @@ public class Lexer {
         return stringValue;
     }
     
-    public int getNumberValue() {
-        return numberValue;
+    public int getIntValue() {
+        return intValue;
     }
     
-    public char getCharValue() {
+    public float getFloatValue() {
+        return floatValue;
+    }
+    
+	public char getCharValue() {
         return charValue;
     }
     // current token
@@ -237,6 +240,7 @@ public class Lexer {
     private boolean isFloat;
     
     private int  tokenPos;
+	private int  tokenLen;
     //  input[lastTokenPos] is the last character of the last token
     private int lastTokenPos;
     // program given as input - source code
@@ -247,4 +251,6 @@ public class Lexer {
     
     private CompilerError error;
     private static final int MaxValueInteger = 32768;
+	private static final int MaxStringLength = 80;
+	private static final int MaxIdentifierLength = 30;
 }
