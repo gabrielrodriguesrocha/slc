@@ -33,7 +33,10 @@ public enum Symbol {
 	RPAR(")"),
 	ASSIGN(":="),
 	COMMA(","),
-	SEMICOLON(";");
+	SEMICOLON(";"),
+	INTLITERAL("IntNumber"),
+	FLOATLITERAL("FloatNumber"),
+	STRINGLITERAL("StringLiteral");
 
 	Symbol(String name) {
 		this.name = name;
