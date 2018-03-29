@@ -39,7 +39,7 @@ public class Lexer {
         keywordsTable.put( "for", Symbol.FOR );
         keywordsTable.put( "endfor", Symbol.ENDFOR );
         keywordsTable.put( "float", Symbol.FLOAT );
-        keywordsTable.put( "int", Symbol.FLOAT );
+        keywordsTable.put( "int", Symbol.INT);
         keywordsTable.put( "void", Symbol.VOID );
         keywordsTable.put( "string", Symbol.STRING );
     }
@@ -71,11 +71,6 @@ public class Lexer {
 
     String aux = "";
 
-    if (input[tokenPos] == '-') { // Números negativos
-        aux += input[tokenPos];
-        tokenPos++;
-    }
-
     if (input[tokenPos] == '.') { // Floats sem unidade
         aux += input[tokenPos];
         tokenPos++;
@@ -87,6 +82,7 @@ public class Lexer {
         tokenPos++;
         if (input[tokenPos] == '.') {
             isFloat = true;
+			tokenPos++;
         }
     }
     if(!aux.equals("")) {
@@ -112,20 +108,21 @@ public class Lexer {
         }
     }
     else {
+		tokenLen = 0;
         if (input[tokenPos] == '"') {
-			tokenLen = 0;
-            do {
-                aux += input[tokenPos];
+            while(input[tokenPos+1] != '"') {
 				tokenPos++;
+                aux += input[tokenPos];
 				tokenLen++;
-            } while (input[tokenPos] != '"' && tokenLen <= MaxStringLength);
-			if (tokenLen > MaxStringLength)
+            } 
+			if (tokenLen > MaxStringLength) {
 				error.signal("String de comprimento superior ao máximo permitido");
+			}
+			tokenPos = tokenPos + 2; // ignora a aspa
             token = Symbol.STRINGLITERAL;
             stringValue = aux;
         }
         else {
-			tokenLen = 0;
             while (Character.isLetter(input[tokenPos]) ||
 				   Character.isDigit(input[tokenPos])) {
                 aux += input[tokenPos];
@@ -157,20 +154,26 @@ public class Lexer {
                     case '*':
                             token = Symbol.DIV;
                             break;
-                    case '=':
-                            token = Symbol.ASSIGN;
+                    case '<':
+                            token = Symbol.LT;
                             break;
-                    case ',':
-                            token = Symbol.COMMA;
-                            break;
-                    case ';':
-                            token = Symbol.SEMICOLON;
+                    case '>':
+                            token = Symbol.GT;
                             break;
                     case ':' :
                             if (input[tokenPos+1] == '=') {
                                 token = Symbol.ASSIGN;
                                 tokenPos++;
                             }
+                            break;
+                    case '=':
+                            token = Symbol.EQUAL;
+                            break;
+                    case ',':
+                            token = Symbol.COMMA;
+                            break;
+                    case ';':
+                            token = Symbol.SEMICOLON;
                             break;
                     case '(' :
                             token = Symbol.LPAR;
@@ -191,6 +194,15 @@ public class Lexer {
 			System.out.println(token.toString());
         lastTokenPos = tokenPos - 1;
     }
+
+	public void lookAhead() {
+		lookahead = token;
+		nextToken();
+	}
+
+	public void rollback() {
+		token = lookahead;
+	}
     
     // return the line number of the last token got with getToken()
     public int getLineNumber() {
@@ -236,6 +248,7 @@ public class Lexer {
     }
     // current token
     public Symbol token;
+	public Symbol lookahead;
     private String stringValue;
     private int intValue;
     private float floatValue;

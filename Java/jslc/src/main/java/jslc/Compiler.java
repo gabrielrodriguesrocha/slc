@@ -102,12 +102,395 @@ public class Compiler {
 	public static final boolean GC = false; 
 
     public void compile( char []p_input ) {
+        lexer = new Lexer(p_input, error);
 		error = new CompilerError(null);
-		lexer = new Lexer(p_input, error);
 		error.setLexer(lexer);
-		while(lexer.token != Symbol.EOF)
-        	lexer.nextToken();
+        lexer.nextToken();
+        program();
     }
+    
+    // Program ::= Decl FuncDecl
+    public void program(){
+        if (lexer.token != Symbol.PROGRAM)
+            error.signal("Esperava program");
+        lexer.nextToken();
+        if (lexer.token != Symbol.IDENT)
+            error.signal("Esperava nome do programa");
+        lexer.nextToken();
+        if (lexer.token != Symbol.BEGIN)
+            error.signal("Esperava begin");
+        lexer.nextToken();
+        decl();
+        funcDecl();
+        if (lexer.token != Symbol.END)
+            error.signal("Esperava end");
+    }
+
+    // Decl ::= StringDeclList {Decl} | StringDeclList {Decl} | empty
+    public void decl() {
+        while (lexer.token == Symbol.STRING || varType()) {
+			if (lexer.token == Symbol.STRING) {
+                stringDeclList();
+            }
+            else if (varType()) { //perhaps refactor
+                varDeclList();
+            }
+    
+	     }
+        // no error is thrown since decl can be empty
+    }
+
+    public boolean varType() {
+        return lexer.token == Symbol.FLOAT || lexer.token == Symbol.INT;
+    }
+       
+	// VarDecList ::= VarType IdList ; | empty
+	public void varDeclList(){
+        while (varType()) {
+            lexer.nextToken();
+            idList();
+            if (lexer.token != Symbol.SEMICOLON)
+                error.signal("Esperava ';''");
+			lexer.nextToken();
+        }
+    }
+
+    public void idList() {
+        while (lexer.token == Symbol.IDENT) {
+            lexer.nextToken();
+            if (lexer.token != Symbol.COMMA)
+                return;
+            lexer.nextToken();
+        }
+        error.signal("Declaração de variável com palavra reservada");
+    }
+    
+    public void stringDeclList(){
+        while(lexer.token == Symbol.STRING) {
+            lexer.nextToken();
+            if (lexer.token != Symbol.IDENT)
+                error.signal("Declaração de variável com palavra reservada");
+            lexer.nextToken();
+            if (lexer.token != Symbol.ASSIGN)
+                error.signal("Esperava ':=''");
+            lexer.nextToken();
+			if (lexer.token != Symbol.STRINGLITERAL)
+                error.signal("Esperava string literal");
+            lexer.nextToken();
+            if (lexer.token != Symbol.SEMICOLON)
+                error.signal("Esperava ;");
+            lexer.nextToken();
+        }
+    }
+
+    public boolean anyType() {
+        return varType() || lexer.token == Symbol.VOID;
+    }
+    
+    public void funcDecl() {
+        while(lexer.token == Symbol.FUNCTION) {
+            lexer.nextToken();
+            if (!anyType())
+                error.signal("Esperava tipo da função");
+            lexer.nextToken();
+            if (lexer.token != Symbol.IDENT)
+                error.signal("Esperava identificador");
+            lexer.nextToken();
+		    if (lexer.token != Symbol.LPAR)
+				error.signal("Esperava '('");
+			lexer.nextToken();
+			paramDeclList();
+			if (lexer.token != Symbol.RPAR)
+				error.signal("Esperava ')'");
+			lexer.nextToken();
+			if (lexer.token != Symbol.BEGIN)
+				error.signal("Esperava begin");
+			lexer.nextToken();
+			decl();
+			stmtList();
+			if (lexer.token != Symbol.END)
+				error.signal("Esperava end");
+			lexer.nextToken();	
+        }
+    }
+
+	public void paramDeclList() {
+		while (varType()) {
+			lexer.nextToken();
+			if (lexer.token != Symbol.IDENT)
+				error.signal("Esperava identificador");
+			lexer.nextToken();
+			if (lexer.token != Symbol.COMMA)
+				break;
+		}
+	}
+
+	public boolean statementSymbol() {
+		return lexer.token == Symbol.IDENT ||
+			   lexer.token == Symbol.READ ||
+			   lexer.token == Symbol.WRITE ||
+			   lexer.token == Symbol.RETURN ||
+			   lexer.token == Symbol.IF ||
+			   lexer.token == Symbol.FOR;
+	}
+
+	public void stmtList() {
+		while (statementSymbol()) {
+			if (lexer.token == Symbol.IDENT) {
+				lexer.lookAhead(); // danger lies in breaking patterns
+				if (lexer.token == Symbol.ASSIGN) {
+					lexer.rollback();
+					assignStmt();
+				}
+				else if (lexer.token == Symbol.LPAR) {
+					lexer.rollback();
+					callStmt();
+				}
+				else {
+					lexer.rollback();
+					lexer.nextToken();
+				}
+			}
+			else if (lexer.token == Symbol.READ) {
+				readStmt();
+			}
+			else if (lexer.token == Symbol.WRITE) {
+				writeStmt();
+			}
+			else if	(lexer.token == Symbol.RETURN) {
+				returnStmt();
+			}
+			else if (lexer.token == Symbol.IF) {
+				ifStmt();
+			}
+			else if (lexer.token == Symbol.FOR) {
+				forStmt();
+			}
+		}
+	}
+
+	public void assignStmt() {
+		if (lexer.token != Symbol.IDENT)
+			error.signal("Esperava identificador");
+		if (lexer.token != Symbol.ASSIGN)
+			error.signal("Esperava :=");
+		lexer.nextToken();
+		if (lexer.token != Symbol.IDENT)
+			error.signal("Esperava identificador");
+		lexer.nextToken();
+		if(lexer.token != Symbol.SEMICOLON)
+			error.signal ("Esperava ';'");
+		lexer.nextToken();
+	}
+
+	public void callStmt() {
+		if (lexer.token != Symbol.IDENT)
+			error.signal("Esperava identificador");
+		if (lexer.token != Symbol.LPAR)
+			error.signal ("Esperava '('");
+		lexer.nextToken();
+		exprList();
+		lexer.nextToken();
+		if(lexer.token != Symbol.RPAR)
+			error.signal ("Esperava ')'");
+		lexer.nextToken();
+		if(lexer.token != Symbol.SEMICOLON)
+			error.signal ("Esperava ';'");
+		lexer.nextToken();
+	}
+	
+	public void readStmt() {
+		if (lexer.token != Symbol.READ)
+			error.signal("Esperava read");
+		lexer.nextToken();
+		if (lexer.token != Symbol.LPAR)
+			error.signal ("Esperava '('");
+		lexer.nextToken();
+		idList();
+		if(lexer.token != Symbol.RPAR)
+			error.signal ("Esperava ')'");
+		lexer.nextToken();
+		if(lexer.token != Symbol.SEMICOLON)
+			error.signal ("Esperava ';'");
+		lexer.nextToken();
+	}
+	
+	public void writeStmt() {
+		if (lexer.token != Symbol.READ)
+			error.signal("Esperava read");
+		lexer.nextToken();
+		if (lexer.token != Symbol.LPAR)
+			error.signal ("Esperava '('");
+		lexer.nextToken();
+		idList();
+		if(lexer.token != Symbol.RPAR)
+			error.signal ("Esperava ')'");
+		lexer.nextToken();
+		if(lexer.token != Symbol.SEMICOLON)
+			error.signal ("Esperava ';'");
+		lexer.nextToken();
+	}
+
+	public void returnStmt() {
+		if (lexer.token != Symbol.RETURN)
+			error.signal("Esperava return");
+		lexer.nextToken();
+		expr();
+		lexer.nextToken();
+		if (lexer.token != Symbol.SEMICOLON)
+			error.signal("Esperava ';'");
+	}
+
+	public void ifStmt() {
+		if (lexer.token != Symbol.IF)
+			error.signal("Esperava if");
+		lexer.nextToken();
+		if (lexer.token != Symbol.LPAR)
+			error.signal("Esperava '('");
+		lexer.nextToken();
+		compExpr();
+		if (lexer.token != Symbol.RPAR)
+			error.signal("Esperava ')'");
+		lexer.nextToken();
+		stmtList();
+		if (lexer.token == Symbol.ELSE)
+			elseStmt();
+		else if (lexer.token != Symbol.ENDIF)
+			error.signal("Esperava endif");	
+	}
+
+	public void elseStmt() {
+		if (lexer.token != Symbol.ELSE)
+			error.signal("Esperava else");
+		lexer.nextToken();
+		stmtList();
+	}
+
+	public void compExpr () {
+		expr();
+		lexer.nextToken();
+		if (!compop())
+			error.signal("Esperava >, < ou =");
+		lexer.nextToken();
+		expr();
+	}
+
+	public boolean compop () {
+		return lexer.token == Symbol.GT ||
+			   lexer.token == Symbol.LT ||
+		       lexer.token == Symbol.EQUAL;	   
+	}
+
+	public void forStmt() {
+		if (lexer.token != Symbol.FOR)
+			error.signal("Esperava for");
+		lexer.nextToken();
+		if (lexer.token != Symbol.LPAR)
+			error.signal("Esperava '(");
+		lexer.nextToken();
+		assignExpr();
+		if (lexer.token != Symbol.SEMICOLON)
+			error.signal("Esperava ';'");
+		lexer.nextToken();
+		compExpr();
+		if (lexer.token != Symbol.SEMICOLON)
+			error.signal("Esperava ';'");
+		assignExpr();
+		if (lexer.token != Symbol.RPAR)
+			error.signal("Esperava ')'");
+		stmtList();
+		if (lexer.token != Symbol.ENDFOR)
+			error.signal("Esperava endfor");
+	}
+
+	public void assignExpr() {
+		if (lexer.token != Symbol.IDENT)
+			error.signal("Esperava identificador");
+		lexer.nextToken();
+		if (lexer.token != Symbol.ASSIGN)
+			error.signal("Esperava :=");
+		lexer.nextToken();
+		expr();	
+	}
+    
+	public void exprList() {
+		while(lexer.token == Symbol.IDENT ||
+			  lexer.token == Symbol.LPAR ||
+			  lexer.token == Symbol.FLOATLITERAL ||
+			  lexer.token == Symbol.INTLITERAL) {
+			expr();
+			lexer.nextToken();
+			if (lexer.token != Symbol.COMMA)
+				break;
+		}
+	}
+	
+	public boolean addop() {
+		return lexer.token == Symbol.PLUS || lexer.token == Symbol.MINUS;
+	}
+
+	public boolean mulop() {
+		return lexer.token == Symbol.MULT || lexer.token == Symbol.DIV;
+	}
+	
+	public void expr() {
+		factor();
+		lexer.nextToken();
+		while (addop()) {
+			factor();
+			lexer.nextToken();
+		}
+	}
+
+	public void factor() {
+		postfixExpr();
+		lexer.nextToken();
+		while (mulop()) {
+			postfixExpr();
+			lexer.nextToken();
+		}
+	}
+
+	public void postfixExpr() {
+		if (lexer.token == Symbol.INTLITERAL ||
+			lexer.token == Symbol.FLOATLITERAL) {
+			lexer.nextToken();
+		}
+		else if (lexer.token == Symbol.IDENT) {
+			lexer.lookAhead(); // danger lies in breaking patterns
+			if (lexer.token == Symbol.ASSIGN) {
+				lexer.rollback();
+				assignStmt();
+			}
+			else if (lexer.token == Symbol.LPAR) {
+				lexer.rollback();
+				callStmt();
+			}
+			else {
+				lexer.rollback();
+				lexer.nextToken();
+			}
+		}
+		else if (lexer.token == Symbol.LPAR) {
+			lexer.nextToken();
+			expr();
+			lexer.nextToken();
+			if (lexer.token != Symbol.RPAR)
+				error.signal("Esperava ')'");
+		}
+		else
+			error.signal("Problema na sintaxe");
+	}
+
+	public void callExpr() {
+		if (lexer.token != Symbol.IDENT)
+			error.signal("Esperava identificador");
+		lexer.nextToken();
+		if (lexer.token != Symbol.LPAR)
+			error.signal("Esperava '('");
+		lexer.nextToken();
+
+	}
     
 	private Lexer lexer;
     private CompilerError error;
