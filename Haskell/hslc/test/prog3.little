@@ -1,0 +1,43 @@
+PROGRAM medium
+BEGIN
+	FUNCTION INT factorial(INT n)
+	-- Calculates the factorial of n
+	BEGIN
+		INT prod;
+		IF (n = 0) THEN
+			RETURN 1;
+		ELSE
+			RETURN n * factorial(n - 1);
+		ENDIF
+	END
+
+	FUNCTION INT fib(INT n)
+	-- Calculates the n-th Fibonacci number
+	BEGIN
+		IF (n < 3) THEN
+			RETURN 1;
+		ELSE
+			RETURN fib(x - 1) + fib(x - 2);
+		ENDIF
+	END
+
+	FUNCTION INT main()
+	-- Asks for user input, which should be a non-negative number n
+	-- And calculates the (n!)-th Fibonacci number
+	BEGIN
+		INT n, res;
+		STRING error := "Factorial not defined for negative numbers";
+		
+		READ(n);
+		
+		IF (n < 0) THEN
+			WRITE(error);
+			RETURN 1;
+		ELSE
+			res := fib(factorial(n));
+		ENDIF
+
+		WRITE(res);
+		RETURN 0;
+	END
+END

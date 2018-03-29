@@ -17,13 +17,13 @@ BEGIN
 
 		READ(X);
 		READ(Y);
-		X := SOMA(X,Y)
+		X := SOMA(X,Y);
 		WRITE(X);
-		X := SUB(X,Y)
+		X := SUB(X,Y);
 		WRITE(X);
-		X := MULT(X,Y)
+		X := MULT(X,Y);
 		WRITE(X);
-		X := POT(X,Y)
+		X := POT(X,Y);
 		WRITE(X);
 
 		READ(A);
@@ -40,7 +40,7 @@ BEGIN
 		ENDIF
 
 		WRITE(A);
-		C := 0.5
+		C := 0.5;
 		WRITE(C);
 	END
 	FUNCTION VOID NADA()
@@ -68,7 +68,7 @@ BEGIN
 		IF(Y = 0) THEN
 			WRITE(ERRO);
 		ELSE
-			TMP := X/Y
+			TMP := X/Y;
 			WRITE(TMP);
 		ENDIF
 	END
@@ -76,12 +76,12 @@ BEGIN
 	FUNCTION INT POT(INT X, INT Y)
 	BEGIN
 		INT I, W;
-		W := X
+		W := X;
 		IF(Y = 0) THEN
 			RETURN 1;
 		ELSE
 			FOR(I:=1; I < Y; I:=I+1)
-				W := W*X
+				W := W*X;
 			ENDFOR
 			RETURN W;
 		ENDIF
