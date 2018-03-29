@@ -98,6 +98,7 @@ public class Lexer {
             else if (floatValue < - Float.MIN_VALUE){
                 error.signal("Número inferior ao mínimo habilitado");
             }
+            token = Symbol.FLOATLITERAL;
         }
         else {
             intValue = Integer.parseInt(aux);
@@ -107,8 +108,8 @@ public class Lexer {
             else if (intValue < Integer.MIN_VALUE) {
                 error.signal("Número inferior ao mínimo habilitado");
             }
+            token = Symbol.INTLITERAL;
         }
-        token = Symbol.NUMBER;
     }
     else {
         if (input[tokenPos] == '"') {
@@ -120,7 +121,7 @@ public class Lexer {
             } while (input[tokenPos] != '"' && tokenLen <= MaxStringLength);
 			if (tokenLen > MaxStringLength)
 				error.signal("String de comprimento superior ao máximo permitido");
-            token = Symbol.IDENT;
+            token = Symbol.STRINGLITERAL;
             stringValue = aux;
         }
         else {
