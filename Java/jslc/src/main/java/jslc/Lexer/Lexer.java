@@ -7,7 +7,7 @@ import jslc.Error.*;
 public class Lexer {
 
 	// apenas para verificacao lexica
-	public static final boolean DEBUGLEXER = true; 
+    public static final boolean DEBUGLEXER = true; 
     
     public Lexer( char []input, CompilerError error ) {
         this.input = input;
@@ -48,7 +48,8 @@ public class Lexer {
     public void nextToken() {
         while(input[tokenPos] == ' ' ||
               input[tokenPos] == '\n' || 
-              input[tokenPos] == '\t' ){
+              input[tokenPos] == '\t' ||
+              input[tokenPos] == '\r' ){
             
             if (input[tokenPos] == '\n'){
                 lineNumber++;
@@ -118,7 +119,7 @@ public class Lexer {
 			if (tokenLen > MaxStringLength) {
 				error.signal("String de comprimento superior ao máximo permitido");
 			}
-			tokenPos = tokenPos + 2; // ignora a aspa
+			tokenPos = tokenPos + 2; // ignores quotation marks
             token = Symbol.STRINGLITERAL;
             stringValue = aux;
         }
@@ -152,7 +153,7 @@ public class Lexer {
                             token = Symbol.DIV;
                             break;
                     case '*':
-                            token = Symbol.DIV;
+                            token = Symbol.MULT;
                             break;
                     case '<':
                             token = Symbol.LT;
@@ -191,17 +192,29 @@ public class Lexer {
 
 
 		if (DEBUGLEXER)
-			System.out.println(token.toString());
-        lastTokenPos = tokenPos - 1;
+            System.out.println(token.toString());
+            
+        if (token == Symbol.STRINGLITERAL ||
+            token == Symbol.INTLITERAL ||
+            token == Symbol.FLOATLITERAL ||
+            token == Symbol.IDENT) {
+            lastTokenPos = tokenPos - aux.length();
+        }
+        else
+            lastTokenPos = tokenPos - token.toString().length();
     }
 
+    // making an LL(1) parser has never been easier with these incredible functions!
 	public void lookAhead() {
+        if (DEBUGLEXER)
+            System.out.println("Lookahead: ");
 		lookahead = token;
-		nextToken();
+        nextToken();
 	}
 
 	public void rollback() {
-		token = lookahead;
+        token = lookahead;
+        tokenPos = lastTokenPos;
 	}
     
     // return the line number of the last token got with getToken()

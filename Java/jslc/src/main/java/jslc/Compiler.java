@@ -222,6 +222,7 @@ public class Compiler {
 			lexer.nextToken();
 			if (lexer.token != Symbol.COMMA)
 				break;
+			lexer.nextToken();
 		}
 	}
 
@@ -246,10 +247,8 @@ public class Compiler {
 					lexer.rollback();
 					callStmt();
 				}
-				else {
-					lexer.rollback();
-					lexer.nextToken();
-				}
+				else
+					error.signal("Esperava atribuição ou chamada de função");
 			}
 			else if (lexer.token == Symbol.READ) {
 				readStmt();
@@ -270,33 +269,32 @@ public class Compiler {
 	}
 
 	public void assignStmt() {
-		if (lexer.token != Symbol.IDENT)
-			error.signal("Esperava identificador");
-		if (lexer.token != Symbol.ASSIGN)
-			error.signal("Esperava :=");
-		lexer.nextToken();
-		if (lexer.token != Symbol.IDENT)
-			error.signal("Esperava identificador");
-		lexer.nextToken();
+		assignExpr();
+		//lexer.nextToken();
 		if(lexer.token != Symbol.SEMICOLON)
 			error.signal ("Esperava ';'");
 		lexer.nextToken();
 	}
 
 	public void callStmt() {
+		callExpr();
+		if(lexer.token != Symbol.SEMICOLON)
+			error.signal ("Esperava ';'");
+		lexer.nextToken();
+	}
+
+	public void callExpr() {
 		if (lexer.token != Symbol.IDENT)
 			error.signal("Esperava identificador");
+		lexer.nextToken();
 		if (lexer.token != Symbol.LPAR)
 			error.signal ("Esperava '('");
 		lexer.nextToken();
 		exprList();
-		lexer.nextToken();
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();
-		if(lexer.token != Symbol.SEMICOLON)
-			error.signal ("Esperava ';'");
-		lexer.nextToken();
+
 	}
 	
 	public void readStmt() {
@@ -316,7 +314,7 @@ public class Compiler {
 	}
 	
 	public void writeStmt() {
-		if (lexer.token != Symbol.READ)
+		if (lexer.token != Symbol.WRITE)
 			error.signal("Esperava read");
 		lexer.nextToken();
 		if (lexer.token != Symbol.LPAR)
@@ -336,9 +334,9 @@ public class Compiler {
 			error.signal("Esperava return");
 		lexer.nextToken();
 		expr();
-		lexer.nextToken();
 		if (lexer.token != Symbol.SEMICOLON)
 			error.signal("Esperava ';'");
+		lexer.nextToken();
 	}
 
 	public void ifStmt() {
@@ -352,11 +350,17 @@ public class Compiler {
 		if (lexer.token != Symbol.RPAR)
 			error.signal("Esperava ')'");
 		lexer.nextToken();
+		if (lexer.token != Symbol.THEN)
+			error.signal("Esperava then");
+		lexer.nextToken();
 		stmtList();
-		if (lexer.token == Symbol.ELSE)
+		if (lexer.token == Symbol.ELSE) {
 			elseStmt();
-		else if (lexer.token != Symbol.ENDIF)
+		}
+		else if (lexer.token != Symbol.ENDIF) {
 			error.signal("Esperava endif");	
+		}
+		lexer.nextToken();
 	}
 
 	public void elseStmt() {
@@ -368,7 +372,7 @@ public class Compiler {
 
 	public void compExpr () {
 		expr();
-		lexer.nextToken();
+		//lexer.nextToken();
 		if (!compop())
 			error.signal("Esperava >, < ou =");
 		lexer.nextToken();
@@ -395,12 +399,15 @@ public class Compiler {
 		compExpr();
 		if (lexer.token != Symbol.SEMICOLON)
 			error.signal("Esperava ';'");
+		lexer.nextToken();
 		assignExpr();
 		if (lexer.token != Symbol.RPAR)
 			error.signal("Esperava ')'");
+		lexer.nextToken();
 		stmtList();
 		if (lexer.token != Symbol.ENDFOR)
 			error.signal("Esperava endfor");
+		lexer.nextToken();
 	}
 
 	public void assignExpr() {
@@ -419,9 +426,9 @@ public class Compiler {
 			  lexer.token == Symbol.FLOATLITERAL ||
 			  lexer.token == Symbol.INTLITERAL) {
 			expr();
-			lexer.nextToken();
 			if (lexer.token != Symbol.COMMA)
 				break;
+			lexer.nextToken();
 		}
 	}
 	
@@ -435,19 +442,17 @@ public class Compiler {
 	
 	public void expr() {
 		factor();
-		lexer.nextToken();
 		while (addop()) {
-			factor();
 			lexer.nextToken();
+			factor();
 		}
 	}
 
 	public void factor() {
 		postfixExpr();
-		lexer.nextToken();
 		while (mulop()) {
-			postfixExpr();
 			lexer.nextToken();
+			postfixExpr();
 		}
 	}
 
@@ -458,38 +463,20 @@ public class Compiler {
 		}
 		else if (lexer.token == Symbol.IDENT) {
 			lexer.lookAhead(); // danger lies in breaking patterns
-			if (lexer.token == Symbol.ASSIGN) {
+			if (lexer.token == Symbol.LPAR) {
 				lexer.rollback();
-				assignStmt();
-			}
-			else if (lexer.token == Symbol.LPAR) {
-				lexer.rollback();
-				callStmt();
-			}
-			else {
-				lexer.rollback();
-				lexer.nextToken();
+				callExpr();
 			}
 		}
 		else if (lexer.token == Symbol.LPAR) {
 			lexer.nextToken();
 			expr();
-			lexer.nextToken();
+			//lexer.nextToken();
 			if (lexer.token != Symbol.RPAR)
 				error.signal("Esperava ')'");
 		}
 		else
 			error.signal("Problema na sintaxe");
-	}
-
-	public void callExpr() {
-		if (lexer.token != Symbol.IDENT)
-			error.signal("Esperava identificador");
-		lexer.nextToken();
-		if (lexer.token != Symbol.LPAR)
-			error.signal("Esperava '('");
-		lexer.nextToken();
-
 	}
     
 	private Lexer lexer;

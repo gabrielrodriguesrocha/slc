@@ -1,0 +1,43 @@
+program medium
+begin
+	function int factorial(int n)
+	-- Calculates the factorial of n
+	begin
+		int prod;
+		if (n = 0) then
+			return 1;
+		else
+			return n * factorial(n - 1);
+		endif
+	end
+
+	function int fib(int n)
+	-- Calculates the n-th Fibonacci number
+	begin
+		if (n < 3) then
+			return 1;
+		else
+			return fib(x - 1) + fib(x - 2);
+		endif
+	end
+
+	function int main()
+	-- Asks for user input, which should be a non-negative number n
+	-- And calculates the (n!)-th Fibonacci number
+	begin
+		int n, res;
+		string error := "Factorial not defined for negative numbers";
+		
+		read(n);
+		
+		if (n < 0) then
+			write(error);
+			return 1;
+		else
+			res := fib(factorial(n));
+		endif
+
+		write(res);
+		return 0;
+	end
+end

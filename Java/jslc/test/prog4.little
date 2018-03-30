@@ -1,0 +1,89 @@
+program
+TUDO
+begin
+	int X;
+	function void MAIN()
+	begin
+		int X, Y;
+		string A := "A";
+		float C, D;
+		-- comentario
+		int I;
+		for(I:= 0; I < 5; I := I+1)
+		endfor
+
+		if(X > 0) then
+		endif
+
+		read(X);
+		read(Y);
+		X := SOMA(X,Y);
+		write(X);
+		X := SUB(X,Y);
+		write(X);
+		X := MULT(X,Y);
+		write(X);
+		X := POT(X,Y);
+		write(X);
+
+		read(A);
+		read(B);
+		write(B);
+		write(A);
+
+		read(C);
+		read(D);
+		if(C > D) then
+			write(C);
+		else
+			write(D);
+		endif
+
+		write(A);
+		C := 0.5;
+		write(C);
+	end
+	function void NADA()
+	begin
+	end
+	function int SOMA(int X, int Y)
+	begin
+		return X+Y;
+	end
+
+	function int SUB(int X, int Y)
+	begin
+		return X-Y;
+	end
+
+	function int MULT(int X, int Y)
+	begin
+		return X*Y;
+	end
+
+	function void DIV(int X, int Y)
+	begin
+		int TMP;
+		string ERRO := "NAO EXISTE DIVISAO POR ZERO";
+		if(Y = 0) then
+			write(ERRO);
+		else
+			TMP := X/Y;
+			write(TMP);
+		endif
+	end
+
+	function int POT(int X, int Y)
+	begin
+		int I, W;
+		W := X;
+		if(Y = 0) then
+			return 1;
+		else
+			for(I:=1; I < Y; I:=I+1)
+				W := W*X;
+			endfor
+			return W;
+		endif
+	end
+end
