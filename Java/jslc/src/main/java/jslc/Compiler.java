@@ -162,7 +162,7 @@ public class Compiler {
                 return;
             lexer.nextToken();
         }
-        error.signal("Declaração de variável com palavra reservada");
+        error.signal("Não é um identificador válido");
     }
     
     public void stringDeclList(){
