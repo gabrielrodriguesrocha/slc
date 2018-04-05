@@ -1,0 +1,7 @@
+PROGRAM err2 BEGIN
+	INT x, y, z;
+    DOUBLE w;
+	FUNCTION VOID a () BEGIN
+		x := x + y;
+	END
+END

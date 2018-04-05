@@ -1,89 +1,89 @@
-program
+PROGRAM
 TUDO
-begin
-	int X;
-	function void MAIN()
-	begin
-		int X, Y;
-		string A := "A";
-		float C, D;
+BEGIN
+	INT X;
+	FUNCTION VOID MAIN()
+	BEGIN
+		INT X, Y;
+		STRING A := "A";
+		FLOAT C, D;
 		-- comentario
-		int I;
-		for(I:= 0; I < 5; I := I+1)
-		endfor
+		INT I;
+		FOR(I:= 0; I < 5; I := I+1)
+		ENDFOR
 
-		if(X > 0) then
-		endif
+		IF(X > 0) THEN
+		ENDIF
 
-		read(X);
-		read(Y);
+		READ(X);
+		READ(Y);
 		X := SOMA(X,Y);
-		write(X);
+		WRITE(X);
 		X := SUB(X,Y);
-		write(X);
+		WRITE(X);
 		X := MULT(X,Y);
-		write(X);
+		WRITE(X);
 		X := POT(X,Y);
-		write(X);
+		WRITE(X);
 
-		read(A);
-		read(B);
-		write(B);
-		write(A);
+		READ(A);
+		READ(B);
+		WRITE(B);
+		WRITE(A);
 
-		read(C);
-		read(D);
-		if(C > D) then
-			write(C);
-		else
-			write(D);
-		endif
+		READ(C);
+		READ(D);
+		IF(C > D) THEN
+			WRITE(C);
+		ELSE
+			WRITE(D);
+		ENDIF
 
-		write(A);
+		WRITE(A);
 		C := 0.5;
-		write(C);
-	end
-	function void NADA()
-	begin
-	end
-	function int SOMA(int X, int Y)
-	begin
-		return X+Y;
-	end
+		WRITE(C);
+	END
+	FUNCTION VOID NADA()
+	BEGIN
+	END
+	FUNCTION INT SOMA(INT X, INT Y)
+	BEGIN
+		RETURN X+Y;
+	END
 
-	function int SUB(int X, int Y)
-	begin
-		return X-Y;
-	end
+	FUNCTION INT SUB(INT X, INT Y)
+	BEGIN
+		RETURN X-Y;
+	END
 
-	function int MULT(int X, int Y)
-	begin
-		return X*Y;
-	end
+	FUNCTION INT MULT(INT X, INT Y)
+	BEGIN
+		RETURN X*Y;
+	END
 
-	function void DIV(int X, int Y)
-	begin
-		int TMP;
-		string ERRO := "NAO EXISTE DIVISAO POR ZERO";
-		if(Y = 0) then
-			write(ERRO);
-		else
+	FUNCTION VOID DIV(INT X, INT Y)
+	BEGIN
+		INT TMP;
+		STRING ERRO := "NAO EXISTE DIVISAO POR ZERO";
+		IF(Y = 0) THEN
+			WRITE(ERRO);
+		ELSE
 			TMP := X/Y;
-			write(TMP);
-		endif
-	end
+			WRITE(TMP);
+		ENDIF
+	END
 
-	function int POT(int X, int Y)
-	begin
-		int I, W;
+	FUNCTION INT POT(INT X, INT Y)
+	BEGIN
+		INT I, W;
 		W := X;
-		if(Y = 0) then
-			return 1;
-		else
-			for(I:=1; I < Y; I:=I+1)
+		IF(Y = 0) THEN
+			RETURN 1;
+		ELSE
+			FOR(I:=1; I < Y; I:=I+1)
 				W := W*X;
-			endfor
-			return W;
-		endif
-	end
-end
+			ENDFOR
+			RETURN W;
+		ENDIF
+	END
+END

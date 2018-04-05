@@ -8,6 +8,7 @@ public class Lexer {
 
 	// apenas para verificacao lexica
     public static final boolean DEBUGLEXER = true;
+    public static boolean LOOKAHEADCALL = false;
     
     public Lexer( char []input, CompilerError error ) {
         this.input = input;
@@ -87,7 +88,7 @@ public class Lexer {
         }
     }
     if(!aux.equals("")) {
-        if (isFloat == true) {
+        if (isFloat == true && aux.length() > 1) {
             floatValue = Float.parseFloat(aux);
             if (floatValue > Float.MAX_VALUE) {
                 error.signal("Número superior ao máximo habilitado");
@@ -97,7 +98,7 @@ public class Lexer {
             }
             token = Symbol.FLOATLITERAL;
         }
-        else {
+        else if (aux.length() >= 1) {
             intValue = Integer.parseInt(aux);
             if (intValue > Integer.MAX_VALUE) {
                 error.signal("Número superior ao máximo habilitado");
@@ -183,7 +184,7 @@ public class Lexer {
                             token = Symbol.RPAR;
                             break;
                     default:
-                            error.signal("erro lexico");
+                            error.signal("Erro léxico");
                 }	
                 tokenPos++;
             }
@@ -191,9 +192,9 @@ public class Lexer {
     }
 
 
-		if (DEBUGLEXER) {
+		if (DEBUGLEXER && !LOOKAHEADCALL) {
             System.out.println(token.toString());
-		}
+        }
             
         if (token == Symbol.STRINGLITERAL ||
             token == Symbol.INTLITERAL ||
@@ -209,8 +210,10 @@ public class Lexer {
 	public void lookAhead() {
         //if (DEBUGLEXER)
         //    System.out.println("Lookahead: ");
-		lookahead = token;
+        lookahead = token;
+        LOOKAHEADCALL = true;
         nextToken();
+        LOOKAHEADCALL = false;
 	}
 
 	public void rollback() {

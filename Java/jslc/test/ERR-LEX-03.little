@@ -1,0 +1,7 @@
+PROGRAM err3 BEGIN
+	INT 122x, y, z;
+    DOUBLE w;
+	FUNCTION VOID a () BEGIN
+		x := x + y;
+	END
+END

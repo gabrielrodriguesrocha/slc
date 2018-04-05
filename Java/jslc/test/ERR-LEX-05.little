@@ -1,0 +1,6 @@
+PROGRAM err3 BEGIN
+	INT x, y, z;
+	FUNCTION VOID a () BEGIN
+        x := ..4;
+	END
+END

@@ -1,7 +1,0 @@
-program empty
-begin
-    function a () begin
-        if (a > 0) then
-        endif
-    end
-end

@@ -1,0 +1,21 @@
+--testa argumento write
+PROGRAM
+MEDIO
+BEGIN
+	FUNCTION VOID MAIN()
+	BEGIN
+			INT XABLAU, Y, W, I;
+			READ(X);
+			READ(Y);
+			W := X;
+			IF( Y = 0) THEN
+				I:=1;
+				WRITE(1);	
+			ELSE
+				FOR(I:=1; I < Y; I:=I+1)
+					W := W*X;
+				ENDFOR
+				WRITE(W);
+			ENDIF
+	END
+END

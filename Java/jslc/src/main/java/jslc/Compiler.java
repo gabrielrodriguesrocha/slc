@@ -1,100 +1,20 @@
-/*
-{x} : x is optional
-CAPS : CAPS is a token (terminal) made up of one or more characters.  
-small case symbols are non-terminals.
-
-Program 
-program           -> PROGRAM id BEGIN pgm_body END 
-id                -> IDENTIFIER
-pgm_body          -> decl func_declarations
-decl		  -> string_decl_list {decl} | var_decl_list {decl} | empty
-
-Global String Declaration 
-string_decl_list  -> string_decl {string_decl_tail}
-string_decl       -> STRING id := str ; | empty
-str               -> STRINGLITERAL
-string_decl_tail  -> string_decl {string_decl_tail}
-
-Variable Declaration 
-var_decl_list     -> var_decl {var_decl_tail} 
-var_decl          -> var_type id_list ; | empty
-var_type	  -> FLOAT | INT
-any_type          -> var_type | VOID 
-id_list           -> id id_tail
-id_tail           -> , id id_tail | empty
-var_decl_tail     -> var_decl {var_decl_tail}
-
-Function Paramater List 
-param_decl_list   -> param_decl param_decl_tail
-param_decl        -> var_type id
-param_decl_tail   -> , param_decl param_decl_tail | empty
-
-Function Declarations 
-func_declarations -> func_decl {func_decl_tail}
-func_decl         -> FUNCTION any_type id ({param_decl_list}) BEGIN func_body END | empty
-func_decl_tail    -> func_decl {func_decl_tail} 
-func_body         -> decl stmt_list 
-
-Statement List 
-stmt_list         -> stmt stmt_tail | empty
-stmt_tail         -> stmt stmt_tail | empty
-stmt              -> assign_stmt | read_stmt | write_stmt | return_stmt | if_stmt | for_stmt | call_stmt
-
-Basic Statements 
-assign_stmt       -> assign_expr ;
-assign_expr       -> id := expr
-read_stmt         -> READ ( id_list );
-write_stmt        -> WRITE ( id_list );
-return_stmt       -> RETURN expr ;
-call_stmt		  -> id ( {expr_list} );
-
-Expressions 
-expr              -> factor expr_tail 
-expr_tail         -> addop factor expr_tail | empty
-factor            -> postfix_expr factor_tail
-factor_tail       -> mulop postfix_expr factor_tail | empty
-postfix_expr      -> primary | call_expr
-call_expr         -> id ( {expr_list} )
-expr_list         -> expr expr_list_tail
-expr_list_tail    -> , expr expr_list_tail | empty
-primary           -> (expr) | id | INTLITERAL | FLOATLITERAL
-addop             -> + | -
-mulop             -> * | 
-
-Complex Statements and Condition 
-if_stmt           -> IF ( cond ) THEN stmt_list else_part ENDIF
-else_part         -> ELSE stmt_list | empty
-cond              -> expr compop expr
-compop            -> < | > | =
-for_stmt          -> FOR ({assign_expr}; {cond}; {assign_expr}) stmt_list ENDFOR
-
-
-an IDENTIFIER token will begin with a letter, and be followed by up to 30 letters and numbers.  
-IDENTIFIERS are case sensitive. 
-
-INTLITERAL: integer number 
-            ex) 0, 123, 678
-FLOATLITERAL: floating point number available in two different format
-                yyyy.xxxxxx or .xxxxxxx
-            ex) 3.141592 , .1414 , .0001 , 456.98
-
-STRINGLITERAL  (Max 80 characters including '\0')
-        :      anything sequence of character except '"' 
-            between '"' and '"' 
-            ex) "Hello world!" , "***********" , "this is a string"
-
-COMMENT:
-      Starts with "--" and lasts till the end of line
-      ex) -- this is a comment
-      ex) -- any thing after the "--" is ignored 
-*/
-
-
 package jslc;
 
 import jslc.Lexer.*;
 
 import jslc.Error.*;
+
+/*
+	Convenção de notação:
+	
+	A ::= B | {C} | [D]+ | [E]* 
+	
+	significa:
+	1) A deriva B OU
+	2) A deriva opcionalmente C OU
+	3) A deriva uma ou mais repetições de D OU
+	4) A deriva zero ou mais repetições de E.
+*/
 
 public class Compiler {
 
@@ -102,8 +22,8 @@ public class Compiler {
 	public static final boolean GC = false; 
 
     public void compile( char []p_input ) {
-        lexer = new Lexer(p_input, error);
 		error = new CompilerError(null);
+        lexer = new Lexer(p_input, error);
 		error.setLexer(lexer);
         lexer.nextToken();
         program();
@@ -112,18 +32,20 @@ public class Compiler {
     // Program ::= Decl FuncDecl
     public void program(){
         if (lexer.token != Symbol.PROGRAM)
-            error.signal("Esperava program");
+            error.signal("Esperava PROGRAM");
         lexer.nextToken();
         if (lexer.token != Symbol.IDENT)
             error.signal("Esperava nome do programa");
         lexer.nextToken();
         if (lexer.token != Symbol.BEGIN)
-            error.signal("Esperava begin");
-        lexer.nextToken();
-        decl();
-        funcDecl();
+            error.signal("Esperava BEGIN");
+		lexer.nextToken();
+		if (varType() || lexer.token == Symbol.STRING)
+			decl();
+		if (lexer.token == Symbol.FUNCTION)
+        	funcDecl();
         if (lexer.token != Symbol.END)
-            error.signal("Esperava end");
+            error.signal("Esperava declaração de variável, função ou END");
     }
 
     // Decl ::= StringDeclList {Decl} | StringDeclList {Decl} | empty
@@ -135,14 +57,17 @@ public class Compiler {
             else if (varType()) { //perhaps refactor
                 varDeclList();
             }
-    
-	     }
-        // no error is thrown since decl can be empty
+		 }
+		 if (!varType() &&
+			  lexer.token != Symbol.STRING &&
+			  lexer.token != Symbol.FUNCTION &&
+			  !statementSymbol())
+		 error.signal("Tipo de variável não suportado, esperava STRING, INT ou FLOAT");
     }
 
 	// VarType ::= FLOAT | INT
     public boolean varType() {
-        return lexer.token == Symbol.FLOAT || lexer.token == Symbol.INT;
+		return lexer.token == Symbol.FLOAT || lexer.token == Symbol.INT;
     }
        
 	// VarDecList ::= VarType IdList ; | empty
@@ -188,15 +113,19 @@ public class Compiler {
 
 	// AnyType ::= VarType | VOID
     public boolean anyType() {
-        return varType() || lexer.token == Symbol.VOID;
+		if (varType() || lexer.token == Symbol.VOID)
+			return true;
+		else
+			error.signal("Tipo de função não suportado, esperava INT, FLOAT ou VOID");
+        return false;
     }
     
-	// FuncDecl ::= FUNCTION AnyType ([ParamDeclList]*) BEGIN FuncBody END | empty
+	// FuncDecl ::= [FUNCTION AnyType ([ParamDeclList]*) BEGIN FuncBody END]*
     public void funcDecl() {
         while(lexer.token == Symbol.FUNCTION) {
             lexer.nextToken();
             if (!anyType())
-                error.signal("Esperava tipo da função");
+                error.signal("Tipo de função não suportado, esperava INT, FLOAT ou VOID");
             lexer.nextToken();
             if (lexer.token != Symbol.IDENT)
                 error.signal("Esperava identificador");
@@ -211,8 +140,10 @@ public class Compiler {
 			if (lexer.token != Symbol.BEGIN)
 				error.signal("Esperava begin");
 			lexer.nextToken();
-			decl();
-			stmtList();
+			if (varType() || lexer.token == Symbol.STRING)
+				decl();
+			if (statementSymbol())
+				stmtList();
 			if (lexer.token != Symbol.END)
 				error.signal("Esperava end");
 			lexer.nextToken();	
@@ -397,9 +328,7 @@ public class Compiler {
 
 	// CompOp ::= > | < | =
 	public boolean compop () {
-		return lexer.token == Symbol.GT ||
-			   lexer.token == Symbol.LT ||
-		       lexer.token == Symbol.EQUAL;	   
+		return lexer.token == Symbol.GT || lexer.token == Symbol.LT || lexer.token == Symbol.EQUAL;
 	}
 
 	// ForStmt ::= FOR ({AssignExpr} ; {CompExpr} ; {AssignExpr}) StmtList ENDFOR
@@ -475,6 +404,8 @@ public class Compiler {
 			lexer.nextToken();
 			factor();
 		}
+		/*if (!addop() && !compop() && lexer.token != Symbol.RPAR)
+			error.signal("Operador não suportado, esperava + ou -");*/
 	}
 
 	// Factor ::= PostfixExpr [MulOp PostfixExpr]*
@@ -484,6 +415,8 @@ public class Compiler {
 			lexer.nextToken();
 			postfixExpr();
 		}
+		/*if (!mulop() && !compop() && lexer.token != Symbol.RPAR)
+			error.signal("Operador não suportado, esperava * ou /");*/
 	}
 
 	// PostfixExpr ::= INTLITERAL | FLOATLITERAL | Id | ( Expr ) | CallExpr
@@ -493,10 +426,14 @@ public class Compiler {
 			lexer.nextToken();
 		}
 		else if (lexer.token == Symbol.IDENT) {
-			lexer.lookAhead(); // danger lies in breaking patterns
+			lexer.lookAhead();
 			if (lexer.token == Symbol.LPAR) {
 				lexer.rollback();
 				callExpr();
+			}
+			else {
+				lexer.rollback();
+				lexer.nextToken();
 			}
 		}
 		else if (lexer.token == Symbol.LPAR) {
@@ -504,6 +441,7 @@ public class Compiler {
 			expr();
 			if (lexer.token != Symbol.RPAR)
 				error.signal("Esperava ')'");
+			lexer.nextToken();
 		}
 		else
 			error.signal("Erro sintático");

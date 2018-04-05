@@ -1,27 +1,29 @@
 package jslc.Lexer;
-//modificado
+
 public enum Symbol {
 
 	EOF("eof"),
 	IDENT("Ident"),
-	NUMBER("Number"),
-	PROGRAM("PROGRAM"),
-	BEGIN("BEGIN"),
-	END("END"),
-	FUNCTION("FUNCTION"),
-	READ("READ"),
-	WRITE("WRITE"),
-	IF("IF"),
-	THEN("THEN"),
-	ELSE("ELSE"),
-	ENDIF("ENDIF"),
-	RETURN("RETURN"),
-	FOR("FOR"),
-	ENDFOR("ENDFOR"),
-	FLOAT("FLOAT"),
-	INT("INT"),
-	VOID("VOID"),
-	STRING("STRING"),
+	INTLITERAL("IntNumber"),
+	FLOATLITERAL("FloatNumber"),
+	STRINGLITERAL("StringLiteral"),
+	PROGRAM("program"),
+	BEGIN("begin"),
+	END("end"),
+	FUNCTION("function"),
+	READ("read"),
+	WRITE("write"),
+	IF("if"),
+	THEN("then"),
+	ELSE("else"),
+	ENDIF("endif"),
+	RETURN("return"),
+	FOR("for"),
+	ENDFOR("endfor"),
+	FLOAT("float"),
+	INT("int"),
+	VOID("void"),
+	STRING("string"),
 	PLUS("+"),
 	MINUS("-"),
 	MULT("*"),
@@ -33,10 +35,7 @@ public enum Symbol {
 	RPAR(")"),
 	ASSIGN(":="),
 	COMMA(","),
-	SEMICOLON(";"),
-	INTLITERAL("IntNumber"),
-	FLOATLITERAL("FloatNumber"),
-	STRINGLITERAL("StringLiteral");
+	SEMICOLON(";");
 
 	Symbol(String name) {
 		this.name = name;
