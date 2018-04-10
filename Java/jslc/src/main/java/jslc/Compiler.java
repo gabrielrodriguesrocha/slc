@@ -48,7 +48,7 @@ public class Compiler {
             error.signal("Esperava declaração de variável, função ou END");
     }
 
-    // Decl ::= StringDeclList {Decl} | StringDeclList {Decl} | empty
+    // Decl ::= VarDeclList {Decl} | StringDeclList {Decl} | empty
     public void decl() {
         while (lexer.token == Symbol.STRING || varType()) {
 			if (lexer.token == Symbol.STRING) {

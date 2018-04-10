@@ -150,6 +150,7 @@ assignStmt = do
   id <- identifier
   reservedOp ":="
   rhs <- expr
+  semi
   return $ Assign id rhs
 
 ifStmt :: Parser Stmt
