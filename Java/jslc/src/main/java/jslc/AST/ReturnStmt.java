@@ -5,7 +5,7 @@ public class ReturnStmt extends Stmt {
 		this.e = e;
 	}
 
-	void genC () {
+	public void genC () {
 
 	}
 
