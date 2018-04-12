@@ -8,8 +8,9 @@ public class AssignStmt extends Stmt {
 		this.e = e;
 	}
 
-	public void genC() {
-
+	public void genC(PW pw) {
+		e.genC(pw);
+		pw.println(";");
 	}
 
 	private Symbol id;
