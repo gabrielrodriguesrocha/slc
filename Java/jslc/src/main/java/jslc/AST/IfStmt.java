@@ -15,5 +15,5 @@ public class IfStmt extends Stmt {
 
 	private CompExpr cond;
 	private ArrayList<Stmt> stmts;
-	private elseStmt elsePart;
+	private ElseStmt elsePart;
 }

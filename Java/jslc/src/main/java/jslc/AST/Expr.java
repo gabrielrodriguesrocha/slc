@@ -1,5 +1,8 @@
 package jslc.AST;
 
-public abstract class Expr {
-	public abstract void genC ();
+public class Expr {
+	public Expr  
+	public void genC () {
+
+	}
 }	
