@@ -8,6 +8,9 @@ public class Param {
 		this.type = type;
 		this.name = name;
 	}
+	public genC(PW pw){
+		
+	}
 
 	private Symbol type;
 	private Symbol name;

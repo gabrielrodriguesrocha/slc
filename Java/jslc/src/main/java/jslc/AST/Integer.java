@@ -5,8 +5,8 @@ public class Integer extends PostfixExpr {
 		this.val = val;
 	}
 
-	public void genC () {
-			
+	public void genC (PW pw) {
+			pw.println(val);
 	}
 
 	private int val;
