@@ -9,7 +9,10 @@ public class CompExpr extends Expr  {
 		this.r = r;
 	}
 
-	public void genC () {
+	public void genC (PW pw) {
+		l.genC(pw);
+		pw.println(compop.toString());
+		r.genC(pw);
 
 	}
 

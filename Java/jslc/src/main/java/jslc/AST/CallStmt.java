@@ -6,8 +6,9 @@ public class CallStmt extends Stmt {
 		this.c = c;
 	}
 
-	public void genC () {
-
+	public void genC (PW pw) {
+		c.genC(pw);
+		pw.println(";");
 	}
 
 	private CallExpr c;

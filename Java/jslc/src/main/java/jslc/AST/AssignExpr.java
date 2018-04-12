@@ -3,15 +3,16 @@ package jslc.AST;
 import jslc.Lexer.Symbol;
 
 public class AssignExpr extends Expr {
-	public AssignExpr (Symbol id, Expr e) {
+	public AssignExpr (String id, Expr e) {
 		this.id = id;
 		this.e = e;
 	}
 
-	public void genC () {
-
+	public void genC (PW pw) {
+		pw.println(id+" = ");
+		e.genC(pw);
 	}
 
-	private Symbol id;
+	private String id;
 	private Expr e;
 }

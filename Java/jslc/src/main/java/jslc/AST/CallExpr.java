@@ -5,15 +5,22 @@ import jslc.Lexer.Symbol;
 import java.util.*;
 
 public class CallExpr extends Expr {
-	public CallExpr(Symbol id, ArrayList<Expr> exprList) {
+	public CallExpr(String id, ArrayList<Expr> exprList) {
 		this.id = id;
 		this.exprList = exprList;
 	}
 
-	public void genC () {
-
+	public void genC (PW pw) {
+		pw.println(id+" ( ");
+		if(exprList != null){
+			for (Expr e : exprList) {
+				e.genC(pw);
+			}
+		}
+		pw.println(")");
+		
 	}
 
-	private Symbol id;
+	private String id;
 	private ArrayList <Expr> exprList;
 }
