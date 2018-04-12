@@ -10,6 +10,7 @@ public class CallExpr extends Expr {
 		this.exprList = exprList;
 	}
 
+<<<<<<< HEAD
 	public void genC (PW pw) {
 		pw.println(id+" ( ");
 		if(exprList != null){
@@ -18,6 +19,9 @@ public class CallExpr extends Expr {
 			}
 		}
 		pw.println(")");
+=======
+	public void genC () {
+>>>>>>> 16370d54218b310fe640129154dc496c6eec59dc
 		
 	}
 
