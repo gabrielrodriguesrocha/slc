@@ -4,8 +4,8 @@ import jslc.Lexer.Symbol;
 
 import java.util.*;
 
-public class ReadStmt extends Stmt {
-	public ReadStmt	(ArrayList<Symbol> idList) {
+public class WriteStmt extends Stmt {
+	public WriteStmt (ArrayList<Symbol> idList) {
 		this.idList = idList;
 	}
 

@@ -7,7 +7,6 @@ public class Program {
 	}
 
 	public void genC() {
-		System.out.println("Início");
 		d.genC();
 		f.genC();
 	}

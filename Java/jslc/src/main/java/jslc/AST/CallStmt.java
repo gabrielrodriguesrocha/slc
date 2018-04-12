@@ -1,6 +1,6 @@
 package jslc.AST;
 
-public class CallStmt {
+public class CallStmt extends Stmt {
 	
 	public CallStmt(CallExpr c) {
 		this.c = c;
