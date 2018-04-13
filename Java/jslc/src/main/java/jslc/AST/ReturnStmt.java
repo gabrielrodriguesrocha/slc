@@ -5,8 +5,10 @@ public class ReturnStmt extends Stmt {
 		this.e = e;
 	}
 
-	public void genC () {
-
+	public void genC (PW pw) {
+		pw.print("return (");
+		e.genC(pw);
+		pw.println(");");
 	}
 
 	private Expr e;

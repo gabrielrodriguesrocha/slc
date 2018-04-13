@@ -10,15 +10,15 @@ public class ForStmt extends Stmt {
 		this.stmts = stmts;
 	}
 	public void genC(PW pw){
-		pw.println("for ( ");
+		pw.print("for (");
 		if(init != null){
 			init.genC(pw);
 		}
-		pw.println("; ");
+		pw.print("; ");
 		if(cond != null){
 			cond.genC(pw);
 		}
-		pw.println("; ");
+		pw.print("; ");
 		if(step != null){
 			step.genC(pw);
 		}

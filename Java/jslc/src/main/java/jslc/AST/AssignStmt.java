@@ -1,10 +1,7 @@
 package jslc.AST;
 
-import jslc.Lexer.Symbol;
-
 public class AssignStmt extends Stmt {
-	public AssignStmt(Symbol id, AssignExpr e) {
-		this.id = id;
+	public AssignStmt(AssignExpr e) {
 		this.e = e;
 	}
 
@@ -13,6 +10,5 @@ public class AssignStmt extends Stmt {
 		pw.println(";");
 	}
 
-	private Symbol id;
 	private AssignExpr e;
 }

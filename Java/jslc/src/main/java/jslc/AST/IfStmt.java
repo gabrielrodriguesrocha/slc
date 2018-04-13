@@ -10,14 +10,14 @@ public class IfStmt extends Stmt {
 	}
 
 	public void genC(PW pw) {
-		pw.println("if( ");
+		pw.print("if (");
 		cond.genC(pw);
 		pw.println(") {");
 		for(Stmt a : stmts){
 			a.genC(pw);
 		}
 		pw.println("}");
-		if(elsePart != NULL){
+		if(elsePart != null){
 			elsePart.genC(pw);
 		}
 	}

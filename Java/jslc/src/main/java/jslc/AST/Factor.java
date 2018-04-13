@@ -3,15 +3,18 @@ package jslc.AST;
 import java.util.*;
 
 public class Factor extends Expr {
-	public Factor (PostfixExpr p, ArrayList <FactorList> tail) {
+	public Factor (PostfixExpr p, ArrayList<FactorTail> tail) {
 		this.p = p;
 		this.tail = tail;
 	}
 	
-	public void genC () {
-	
+	public void genC (PW pw) {
+		p.genC(pw);
+		for (FactorTail f : tail)  {
+			f.genC(pw);
+		}
 	}
 
 	private PostfixExpr p;
-	private ArrayList <FactorList> tail;
+	private ArrayList<FactorTail> tail;
 }	

@@ -2,6 +2,9 @@ package jslc;
 
 import java.io.*;
 
+import jslc.AST.PW;
+import jslc.AST.Program;
+
 public class Main {
     public static void main( String []args ) {
         
@@ -46,9 +49,14 @@ public class Main {
             }
                 
 
+            PrintWriter printWriter = new PrintWriter(System.out, true);
+			PW pw = new PW();
+            pw.set(printWriter);
+            
             Compiler compiler = new Compiler();
-        
-            compiler.compile(input);
+            
+            Program p = compiler.compile(input);
+            p.genC(pw);
             }
     }
 }

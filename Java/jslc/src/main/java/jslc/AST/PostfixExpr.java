@@ -1,7 +1,5 @@
 package jslc.AST;
 
-import jslc.Lexer.Symbol;
-
 public class PostfixExpr extends Expr {
 	public PostfixExpr () {}
 
@@ -9,8 +7,8 @@ public class PostfixExpr extends Expr {
 		this.e = e;
 	}
 
-	public void genC () {
-			
+	public void genC (PW pw) {
+		e.genC(pw);
 	}
 
 	private Expr e;

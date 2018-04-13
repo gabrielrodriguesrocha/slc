@@ -4,6 +4,10 @@ import jslc.Lexer.*;
 
 import jslc.Error.*;
 
+import jslc.AST.*;
+
+import java.util.*;
+
 /*
 	Convenção de notação:
 	
@@ -21,16 +25,21 @@ public class Compiler {
 	// para geracao de codigo
 	public static final boolean GC = false; 
 
-    public void compile( char []p_input ) {
+    public Program compile( char []p_input ) {
 		error = new CompilerError(null);
         lexer = new Lexer(p_input, error);
 		error.setLexer(lexer);
         lexer.nextToken();
-        program();
+		Program p = program();
+		if (error.wasAnErrorSignalled())
+            return null;
+		return p;
     }
     
     // Program ::= Decl FuncDecl
-    public void program(){
+    public Program program(){
+		ArrayList <Decl> d = new ArrayList<Decl>();
+		ArrayList <FuncDecl> f = new ArrayList<FuncDecl>();
         if (lexer.token != Symbol.PROGRAM)
             error.signal("Esperava PROGRAM");
         lexer.nextToken();
@@ -41,28 +50,38 @@ public class Compiler {
             error.signal("Esperava BEGIN");
 		lexer.nextToken();
 		if (varType() || lexer.token == Symbol.STRING)
-			decl();
+			d = decl();
 		if (lexer.token == Symbol.FUNCTION)
-        	funcDecl();
+        	f = funcDecl();
         if (lexer.token != Symbol.END)
-            error.signal("Esperava declaração de variável, função ou END");
+			error.signal("Esperava declaração de variável, função ou END");
+		return new Program(d, f);
     }
 
     // Decl ::= VarDeclList {Decl} | StringDeclList {Decl} | empty
-    public void decl() {
+    public ArrayList<Decl> decl() {
+		StringDecl stringD;
+		VarDecl varD;
+		ArrayList<Decl> decls = new ArrayList<Decl>();
+
         while (lexer.token == Symbol.STRING || varType()) {
 			if (lexer.token == Symbol.STRING) {
-                stringDeclList();
+				stringD = stringDecl();
+				decls.add(stringD);
             }
             else if (varType()) { //perhaps refactor
-                varDeclList();
-            }
+				varD = varDecl();
+				decls.add(varD);
+			}
 		 }
 		 if (!varType() &&
 			  lexer.token != Symbol.STRING &&
 			  lexer.token != Symbol.FUNCTION &&
-			  !statementSymbol())
-		 error.signal("Tipo de variável não suportado, esperava STRING, INT ou FLOAT");
+			  !statementSymbol()) {
+		 	error.signal("Tipo de variável não suportado, esperava STRING, INT ou FLOAT");
+		}
+		 
+		 return decls;
     }
 
 	// VarType ::= FLOAT | INT
@@ -71,44 +90,57 @@ public class Compiler {
     }
        
 	// VarDecList ::= VarType IdList ; | empty
-	public void varDeclList(){
-        while (varType()) {
-            lexer.nextToken();
-            idList();
-            if (lexer.token != Symbol.SEMICOLON)
-                error.signal("Esperava ';''");
-			lexer.nextToken();
-        }
+	public VarDecl varDecl(){
+		Symbol type;
+		ArrayList<String> vars;
+
+		if (!varType())
+			error.signal("Esperava INT ou FLOAT");	
+		type = lexer.token;
+        lexer.nextToken();
+        vars = idList();		
+		if (lexer.token != Symbol.SEMICOLON)
+            error.signal("Esperava ';'");
+		lexer.nextToken();
+		
+		return new VarDecl(type, vars);
     }
 	
 	// IdList ::= Id [, IdList]* | Id
-    public void idList() {
+    public ArrayList <String> idList() {
+		ArrayList <String> vars =  new ArrayList<String>();
         while (lexer.token == Symbol.IDENT) {
+			vars.add(lexer.getStringValue());
             lexer.nextToken();
             if (lexer.token != Symbol.COMMA)
-                return;
+                return vars;
             lexer.nextToken();
         }
-        error.signal("Não é um identificador válido");
+		error.signal("Não é um identificador válido");
+		return null;
     }
     
 	// StringDeclList ::= [STRING id := STRINGLITERAL ;]*
-    public void stringDeclList(){
-        while(lexer.token == Symbol.STRING) {
-            lexer.nextToken();
-            if (lexer.token != Symbol.IDENT)
-                error.signal("Declaração de variável com palavra reservada");
-            lexer.nextToken();
-            if (lexer.token != Symbol.ASSIGN)
-                error.signal("Esperava ':=''");
-            lexer.nextToken();
-			if (lexer.token != Symbol.STRINGLITERAL)
-                error.signal("Esperava string literal");
-            lexer.nextToken();
-            if (lexer.token != Symbol.SEMICOLON)
-                error.signal("Esperava ;");
-            lexer.nextToken();
-        }
+    public StringDecl stringDecl(){
+		String id, val;
+
+        lexer.nextToken();
+        if (lexer.token != Symbol.IDENT)
+			error.signal("Declaração de variável com palavra reservada");
+		id = lexer.getStringValue();
+        lexer.nextToken();
+        if (lexer.token != Symbol.ASSIGN)
+            error.signal("Esperava ':=''");
+        lexer.nextToken();
+		if (lexer.token != Symbol.STRINGLITERAL)
+			error.signal("Esperava string literal");
+		val = lexer.getStringValue();
+        lexer.nextToken();
+        if (lexer.token != Symbol.SEMICOLON)
+            error.signal("Esperava ;");
+		lexer.nextToken();
+
+		return new StringDecl(id, val);
     }
 
 	// AnyType ::= VarType | VOID
@@ -121,19 +153,28 @@ public class Compiler {
     }
     
 	// FuncDecl ::= [FUNCTION AnyType ([ParamDeclList]*) BEGIN FuncBody END]*
-    public void funcDecl() {
+    public ArrayList<FuncDecl> funcDecl() {
+		Symbol type;
+		String id;
+		ArrayList<Param> params = new ArrayList<Param>();
+		ArrayList<Decl> decls = new ArrayList<Decl>();
+		ArrayList<Stmt> stmts = new ArrayList<Stmt>();
+		ArrayList<FuncDecl> functions = new ArrayList<FuncDecl>();
+
         while(lexer.token == Symbol.FUNCTION) {
             lexer.nextToken();
             if (!anyType())
-                error.signal("Tipo de função não suportado, esperava INT, FLOAT ou VOID");
+				error.signal("Tipo de função não suportado, esperava INT, FLOAT ou VOID");
+			type = lexer.token;
             lexer.nextToken();
             if (lexer.token != Symbol.IDENT)
-                error.signal("Esperava identificador");
+				error.signal("Esperava identificador");
+			id = lexer.getStringValue();
             lexer.nextToken();
 		    if (lexer.token != Symbol.LPAR)
 				error.signal("Esperava '('");
 			lexer.nextToken();
-			paramDeclList();
+			params = paramDeclList();
 			if (lexer.token != Symbol.RPAR)
 				error.signal("Esperava ')'");
 			lexer.nextToken();
@@ -141,26 +182,37 @@ public class Compiler {
 				error.signal("Esperava begin");
 			lexer.nextToken();
 			if (varType() || lexer.token == Symbol.STRING)
-				decl();
+				decls = decl();
 			if (statementSymbol())
-				stmtList();
+				stmts = stmtList();
 			if (lexer.token != Symbol.END)
 				error.signal("Esperava end");
-			lexer.nextToken();	
-        }
+			lexer.nextToken();
+			functions.add(new FuncDecl (type, id, params, decls, stmts));
+		}
+		return functions;
     }
 
 	// ParamDeclList ::= [VarType Id ,]* | VarType Id
-	public void paramDeclList() {
+	public ArrayList<Param> paramDeclList() {
+		Symbol type;
+		String id;
+		ArrayList<Param> params = new ArrayList<Param>();
+
 		while (varType()) {
+			type = lexer.token;
 			lexer.nextToken();
 			if (lexer.token != Symbol.IDENT)
 				error.signal("Esperava identificador");
+			id = lexer.getStringValue();
 			lexer.nextToken();
 			if (lexer.token != Symbol.COMMA)
 				break;
 			lexer.nextToken();
+			params.add(new Param(type, id));
 		}
+		
+		return params;
 	}
 
 	public boolean statementSymbol() {
@@ -173,157 +225,192 @@ public class Compiler {
 	}
 
 	// StmtList ::= [AssignStmt | CallStmt | ReadStmt | WriteStmt | ReturnStmt | IfStmt | ForStmt]*
-	public void stmtList() {
+	public ArrayList<Stmt> stmtList() {
+		ArrayList<Stmt> stmts = new ArrayList<Stmt>();
+
 		while (statementSymbol()) {
 			if (lexer.token == Symbol.IDENT) {
 				lexer.lookAhead(); // danger lies in breaking patterns
 				if (lexer.token == Symbol.ASSIGN) {
 					lexer.rollback();
-					assignStmt();
+					stmts.add(assignStmt());
 				}
 				else if (lexer.token == Symbol.LPAR) {
 					lexer.rollback();
-					callStmt();
+					stmts.add(callStmt());
 				}
 				else
 					error.signal("Esperava atribuição ou chamada de função");
 			}
 			else if (lexer.token == Symbol.READ) {
-				readStmt();
+				stmts.add(readStmt());
 			}
 			else if (lexer.token == Symbol.WRITE) {
-				writeStmt();
+				stmts.add(writeStmt());
 			}
 			else if	(lexer.token == Symbol.RETURN) {
-				returnStmt();
+				stmts.add(returnStmt());
 			}
 			else if (lexer.token == Symbol.IF) {
-				ifStmt();
+				stmts.add(ifStmt());
 			}
 			else if (lexer.token == Symbol.FOR) {
-				forStmt();
+				stmts.add(forStmt());
 			}
 		}
+
+		return stmts;
 	}
 
 	// AssignStmt ::= AssignExpr ;
-	public void assignStmt() {
-		assignExpr();
+	public AssignStmt assignStmt() {
+		AssignExpr e = assignExpr();
 		//lexer.nextToken();
 		if(lexer.token != Symbol.SEMICOLON)
 			error.signal ("Esperava ';'");
 		lexer.nextToken();
+		return new AssignStmt(e);
 	}
 
 	// CallStmt ::= CallExpr ;
-	public void callStmt() {
-		callExpr();
+	public CallStmt callStmt() {
+		CallExpr c = callExpr();
 		if(lexer.token != Symbol.SEMICOLON)
 			error.signal ("Esperava ';'");
 		lexer.nextToken();
+		return new CallStmt(c);
 	}
 	
 	// CallExpr ::= Id ( ExprList )
-	public void callExpr() {
+	public CallExpr callExpr() {
+		String id;
+		ArrayList<Expr> exprs = new ArrayList<Expr>();
+		
 		if (lexer.token != Symbol.IDENT)
 			error.signal("Esperava identificador");
+		id = lexer.getStringValue();
 		lexer.nextToken();
 		if (lexer.token != Symbol.LPAR)
 			error.signal ("Esperava '('");
 		lexer.nextToken();
-		exprList();
+		exprs = exprList();
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();
-
+		return new CallExpr(id, exprs);
 	}
 	
 	// ReadStmt ::= READ ( IdList ) ;
-	public void readStmt() {
+	public ReadStmt readStmt() {
+		ArrayList<String> ids;
+		
 		if (lexer.token != Symbol.READ)
 			error.signal("Esperava read");
 		lexer.nextToken();
 		if (lexer.token != Symbol.LPAR)
 			error.signal ("Esperava '('");
 		lexer.nextToken();
-		idList();
+		ids = idList();
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();
 		if(lexer.token != Symbol.SEMICOLON)
 			error.signal ("Esperava ';'");
 		lexer.nextToken();
+
+		return new ReadStmt(ids);
 	}
 	
 	// ReadStmt ::= WRITE ( IdList ) ;
-	public void writeStmt() {
+	public WriteStmt writeStmt() {
+		ArrayList<String> ids;
+
 		if (lexer.token != Symbol.WRITE)
 			error.signal("Esperava read");
 		lexer.nextToken();
 		if (lexer.token != Symbol.LPAR)
 			error.signal ("Esperava '('");
 		lexer.nextToken();
-		idList();
+		ids = idList();
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();
 		if(lexer.token != Symbol.SEMICOLON)
 			error.signal ("Esperava ';'");
 		lexer.nextToken();
+
+		return new WriteStmt(ids);
 	}
 
 	// ReturnStmt ::= RETURN Expr;
-	public void returnStmt() {
+	public ReturnStmt returnStmt() {
 		if (lexer.token != Symbol.RETURN)
 			error.signal("Esperava return");
 		lexer.nextToken();
-		expr();
+		Expr e = expr();
 		if (lexer.token != Symbol.SEMICOLON)
 			error.signal("Esperava ';'");
 		lexer.nextToken();
+		return new ReturnStmt(e);
 	}
 
 	// IfStmt ::= IF ( CompExpr ) THEN StmtList {ElseStmt} ENDIF
-	public void ifStmt() {
+	public IfStmt ifStmt() {
+		CompExpr cond;
+		ArrayList<Stmt> stmts;
+		ElseStmt elsePart = null;
+
 		if (lexer.token != Symbol.IF)
 			error.signal("Esperava if");
 		lexer.nextToken();
 		if (lexer.token != Symbol.LPAR)
 			error.signal("Esperava '('");
 		lexer.nextToken();
-		compExpr();
+		cond = compExpr();
 		if (lexer.token != Symbol.RPAR)
 			error.signal("Esperava ')'");
 		lexer.nextToken();
 		if (lexer.token != Symbol.THEN)
 			error.signal("Esperava then");
 		lexer.nextToken();
-		stmtList();
+		stmts = stmtList();
 		if (lexer.token == Symbol.ELSE) {
-			elseStmt();
+			elsePart = elseStmt();
 		}
 		else if (lexer.token != Symbol.ENDIF) {
 			error.signal("Esperava endif");	
 		}
 		lexer.nextToken();
+
+		return new IfStmt(cond, stmts, elsePart);
 	}
 
 	// ElseStmt ::= ELSE StmtList
-	public void elseStmt() {
+	public ElseStmt elseStmt() {
+		ArrayList<Stmt> stmts = new ArrayList<Stmt>();
+
 		if (lexer.token != Symbol.ELSE)
 			error.signal("Esperava else");
 		lexer.nextToken();
-		stmtList();
+		stmts = stmtList();
+
+		return new ElseStmt(stmts);
 	}
 
 	// CompExpr ::= Expr CompOp Expr
-	public void compExpr () {
-		expr();
+	public CompExpr compExpr () {
+		Expr l, r;
+		Symbol op;
+
+		l = expr();
 		//lexer.nextToken();
 		if (!compop())
 			error.signal("Esperava >, < ou =");
+		op = lexer.token;
 		lexer.nextToken();
-		expr();
+		r = expr();
+
+		return new CompExpr(l, op, r);
 	}
 
 	// CompOp ::= > | < | =
@@ -332,59 +419,77 @@ public class Compiler {
 	}
 
 	// ForStmt ::= FOR ({AssignExpr} ; {CompExpr} ; {AssignExpr}) StmtList ENDFOR
-	public void forStmt() {
+	public ForStmt forStmt() {
+		AssignExpr init, step;
+		CompExpr cond;
+		ArrayList<Stmt> stmts;
+
 		if (lexer.token != Symbol.FOR)
 			error.signal("Esperava for");
 		lexer.nextToken();
 		if (lexer.token != Symbol.LPAR)
 			error.signal("Esperava '(");
 		lexer.nextToken();
-		assignExpr();
+		init = assignExpr();
 		if (lexer.token != Symbol.SEMICOLON)
 			error.signal("Esperava ';'");
 		lexer.nextToken();
-		compExpr();
+		cond = compExpr();
 		if (lexer.token != Symbol.SEMICOLON)
 			error.signal("Esperava ';'");
 		lexer.nextToken();
-		assignExpr();
+		step = assignExpr();
 		if (lexer.token != Symbol.RPAR)
 			error.signal("Esperava ')'");
 		lexer.nextToken();
-		stmtList();
+		stmts = stmtList();
 		if (lexer.token != Symbol.ENDFOR)
 			error.signal("Esperava endfor");
 		lexer.nextToken();
+
+		return new ForStmt(init, cond, step, stmts);
 	}
 
 	// AssignExpr ::= Id := Expr
-	public void assignExpr() {
+	public AssignExpr assignExpr() {
+		String id;
+		Expr e;
+
 		if (lexer.token != Symbol.IDENT)
 			error.signal("Esperava identificador");
+		id = lexer.getStringValue();
 		lexer.nextToken();
 		if (lexer.token != Symbol.ASSIGN)
 			error.signal("Esperava :=");
 		lexer.nextToken();
-		expr();	
+		e = expr();	
+
+		return new AssignExpr(id, e);
 	}
 	
     // ExprList ::= [Expr]+ 
-	public void exprList() {
+	public ArrayList<Expr> exprList() {
+		ArrayList<Expr> exprs = new ArrayList<Expr>();
+
 		if (lexer.token != Symbol.IDENT &&
 			lexer.token != Symbol.LPAR &&
+			lexer.token != Symbol.RPAR &&
 			lexer.token != Symbol.FLOATLITERAL &&
-			lexer.token != Symbol.INTLITERAL)
+			lexer.token != Symbol.INTLITERAL
+			)
 			error.signal("Esperava expressão");
 	
 		while(lexer.token == Symbol.IDENT ||
 			  lexer.token == Symbol.LPAR ||
 			  lexer.token == Symbol.FLOATLITERAL ||
 			  lexer.token == Symbol.INTLITERAL) {
-			expr();
+			exprs.add(expr());
 			if (lexer.token != Symbol.COMMA)
 				break;
 			lexer.nextToken();
 		}
+
+		return exprs;
 	}
 	
 	// AddOp ::= + | -
@@ -398,53 +503,80 @@ public class Compiler {
 	}
 	
 	// Expr ::= Factor [AddOp Factor]*
-	public void expr() {
-		factor();
+	public Expr expr() {
+		Factor f,g;
+		Symbol op;
+		ArrayList <ExprTail> tail = new ArrayList<ExprTail>();
+
+		f = factor();
 		while (addop()) {
+			op = lexer.token;
 			lexer.nextToken();
-			factor();
+			g = factor();
+			tail.add(new ExprTail(op, g));
 		}
+
+		return new Expr(f, tail);
+		
 		/*if (!addop() && !compop() && lexer.token != Symbol.RPAR)
 			error.signal("Operador não suportado, esperava + ou -");*/
 	}
 
 	// Factor ::= PostfixExpr [MulOp PostfixExpr]*
-	public void factor() {
-		postfixExpr();
+	public Factor factor() {
+		PostfixExpr p,q;
+		Symbol op;
+		ArrayList <FactorTail> tail = new ArrayList<FactorTail>();
+
+		p = postfixExpr();
 		while (mulop()) {
+			op = lexer.token;
 			lexer.nextToken();
-			postfixExpr();
+			q = postfixExpr();
+			tail.add(new FactorTail(op, q));
 		}
+
+		return new Factor(p, tail);
 		/*if (!mulop() && !compop() && lexer.token != Symbol.RPAR)
 			error.signal("Operador não suportado, esperava * ou /");*/
 	}
 
 	// PostfixExpr ::= INTLITERAL | FLOATLITERAL | Id | ( Expr ) | CallExpr
-	public void postfixExpr() {
-		if (lexer.token == Symbol.INTLITERAL ||
-			lexer.token == Symbol.FLOATLITERAL) {
+	public PostfixExpr postfixExpr() {
+		if (lexer.token == Symbol.INTLITERAL) {
+			int val = lexer.getIntValue();
 			lexer.nextToken();
+			return new IntT(val);
+		}
+		else if (lexer.token == Symbol.FLOATLITERAL) {
+			float val = lexer.getFloatValue();
+			lexer.nextToken();
+			return new FloatT(val);
 		}
 		else if (lexer.token == Symbol.IDENT) {
 			lexer.lookAhead();
 			if (lexer.token == Symbol.LPAR) {
 				lexer.rollback();
-				callExpr();
+				return callExpr();
 			}
 			else {
 				lexer.rollback();
 				lexer.nextToken();
+				return new Identifier(lexer.getStringValue());
 			}
 		}
 		else if (lexer.token == Symbol.LPAR) {
 			lexer.nextToken();
-			expr();
+			PostfixExpr e = (PostfixExpr) expr();
 			if (lexer.token != Symbol.RPAR)
 				error.signal("Esperava ')'");
 			lexer.nextToken();
+			return e;
 		}
-		else
+		else {
 			error.signal("Erro sintático");
+			return null;
+		}
 	}
     
 	private Lexer lexer;

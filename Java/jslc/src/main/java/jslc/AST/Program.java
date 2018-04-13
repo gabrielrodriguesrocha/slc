@@ -1,16 +1,23 @@
 package jslc.AST;
 
+import java.util.*;
+
 public class Program {
-	public Program(Decl d, FuncDecl f) {
+	public Program(ArrayList<Decl> d, ArrayList<FuncDecl> f) {
 		this.d = d;
 		this.f = f;	
 	}
 
-	public void genC() {
-		d.genC();
-		f.genC();
+	public void genC(PW pw) {
+		pw.println("#include <stdio.h>");
+		for (Decl a : d) {
+			a.genC(pw);
+		}
+		for (FuncDecl b : f) {
+			b.genC(pw);
+		}
 	}
 
-	private Decl d;
-	private FuncDecl f;
+	private ArrayList<Decl> d;
+	private ArrayList<FuncDecl> f;
 }

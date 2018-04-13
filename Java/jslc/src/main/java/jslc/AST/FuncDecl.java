@@ -5,22 +5,32 @@ import jslc.Lexer.Symbol;
 import java.util.*;
 
 public class FuncDecl {
-	public FuncDecl (Symbol type, String id, ArrayList<Param> params, FuncBody body) {
+	public FuncDecl (Symbol type, 
+					 String id, 
+					 ArrayList<Param> params, 
+					 ArrayList<Decl> decls,
+					 ArrayList<Stmt> stmts) {
 		this.type = type;
+		this.id = id;
 		this.params = params;
-		this.body = body;
+		this.decls = decls;
+		this.stmts = stmts;
 	}
 
 	public void genC(PW pw) {
-		pw.println(type.toString()+" ");
-		pw.println(id+" ( ");
+		pw.print(type.toString()+" ");
+		pw.print(id + " (");
 		for(Param a : params){
 			a.genC(pw);
 			pw.println(",");
-
 		}
-		pw.println("){");
-		body.genC(pw);
+		pw.println(") {");
+		for(Decl a: decls){
+			a.genC(pw);
+		}
+		for(Stmt b: stmts){
+			b.genC(pw);
+		}
 		pw.println("}");
 		
 	}
@@ -28,5 +38,6 @@ public class FuncDecl {
 	private Symbol type;
 	private String id;
 	private ArrayList<Param> params;
-	private FuncBody body;
+	private ArrayList<Decl> decls;
+	private ArrayList<Stmt> stmts;
 }

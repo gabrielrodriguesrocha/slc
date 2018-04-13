@@ -1,7 +1,5 @@
 package jslc.AST;
 
-import jslc.Lexer.Symbol;
-
 public class AssignExpr extends Expr {
 	public AssignExpr (String id, Expr e) {
 		this.id = id;
@@ -9,7 +7,7 @@ public class AssignExpr extends Expr {
 	}
 
 	public void genC (PW pw) {
-		pw.println(id+" = ");
+		pw.print(id+" = ");
 		e.genC(pw);
 	}
 

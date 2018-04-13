@@ -5,15 +5,18 @@ import java.util.*;
 public class Expr {
 	public Expr () {}
 	
-	public Expr (Factor f, ArrayList <ExprList> tail) {
+	public Expr (Factor f, ArrayList<ExprTail> tail) {
 		this.f = f;
 		this.tail = tail;
 	}
 	
-	public void genC () {
-	
+	public void genC (PW pw) {
+		f.genC(pw);
+		for (ExprTail e : tail) {
+			e.genC(pw);
+		}
 	}
 
 	private Factor f;
-	private ArrayList <ExprList> tail;
+	private ArrayList<ExprTail> tail;
 }	
