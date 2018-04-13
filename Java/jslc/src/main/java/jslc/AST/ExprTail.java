@@ -9,7 +9,7 @@ public class ExprTail {
 	}
 
 	public void genC (PW pw) {
-		pw.print(op.toString() + " ");
+		pw.print(" " + op.toString() + " ");
 		f.genC(pw);
 	}
 

@@ -517,9 +517,6 @@ public class Compiler {
 		}
 
 		return new Expr(f, tail);
-		
-		/*if (!addop() && !compop() && lexer.token != Symbol.RPAR)
-			error.signal("Operador não suportado, esperava + ou -");*/
 	}
 
 	// Factor ::= PostfixExpr [MulOp PostfixExpr]*
@@ -537,8 +534,6 @@ public class Compiler {
 		}
 
 		return new Factor(p, tail);
-		/*if (!mulop() && !compop() && lexer.token != Symbol.RPAR)
-			error.signal("Operador não suportado, esperava * ou /");*/
 	}
 
 	// PostfixExpr ::= INTLITERAL | FLOATLITERAL | Id | ( Expr ) | CallExpr
@@ -567,11 +562,11 @@ public class Compiler {
 		}
 		else if (lexer.token == Symbol.LPAR) {
 			lexer.nextToken();
-			PostfixExpr e = (PostfixExpr) expr();
+			Expr e = expr();
 			if (lexer.token != Symbol.RPAR)
 				error.signal("Esperava ')'");
 			lexer.nextToken();
-			return e;
+			return new PostfixExpr(e);
 		}
 		else {
 			error.signal("Erro sintático");

@@ -1,5 +1,5 @@
 PROGRAM a BEGIN
     FUNCTION VOID a () BEGIN
-        x := x + y;
+        x := (a + b) * 3 / a ();
     END
 END;

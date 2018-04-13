@@ -1,6 +1,6 @@
 package jslc.AST;
 
-public class PostfixExpr extends Expr {
+public class PostfixExpr extends Factor {
 	public PostfixExpr () {}
 
 	public PostfixExpr (Expr e) {
@@ -8,7 +8,9 @@ public class PostfixExpr extends Expr {
 	}
 
 	public void genC (PW pw) {
+		pw.print("(");
 		e.genC(pw);
+		pw.print(")");
 	}
 
 	private Expr e;

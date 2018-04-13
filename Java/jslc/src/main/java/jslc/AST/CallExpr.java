@@ -9,7 +9,7 @@ public class CallExpr extends PostfixExpr {
 	}
 
 	public void genC (PW pw) {
-		pw.print(id+" (");
+		pw.print(id+"(");
 		if(exprList != null){
 			for (Expr e : exprList) {
 				e.genC(pw);

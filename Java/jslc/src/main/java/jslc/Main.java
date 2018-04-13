@@ -57,7 +57,7 @@ public class Main {
             
             Program p = compiler.compile(input);
             p.genC(pw);
-            }
+        }
     }
 }
         
