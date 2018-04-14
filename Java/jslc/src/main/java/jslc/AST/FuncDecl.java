@@ -20,9 +20,13 @@ public class FuncDecl {
 	public void genC(PW pw) {
 		pw.print(type.toString()+" ");
 		pw.print(id + " (");
+		int i = 0;
 		for(Param a : params){
+			if(i != 0){
+				pw.print(",");
+			}
 			a.genC(pw);
-			pw.println(",");
+			i = 1;
 		}
 		pw.println(") {");
 		for(Decl a: decls){
