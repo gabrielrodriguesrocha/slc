@@ -9,11 +9,13 @@ public class ElseStmt {
 
 	public void genC (PW pw) {
 		pw.println("else {");
+		pw.add();
 
 		for(Stmt a: stmts){
 			a.genC(pw);
 
 		}
+		pw.sub();
 		pw.println("}");
 	}
 

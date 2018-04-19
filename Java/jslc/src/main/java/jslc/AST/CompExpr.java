@@ -12,9 +12,9 @@ public class CompExpr extends Expr  {
 	public void genC (PW pw) {
 		l.genC(pw);
 		if (compop == Symbol.EQUAL)
-			pw.print(" == ");
+			pw.out.print(" == ");
 		else
-			pw.print(" " + compop.toString() + " ");
+			pw.out.print(" " + compop.toString() + " ");
 		r.genC(pw);
 
 	}

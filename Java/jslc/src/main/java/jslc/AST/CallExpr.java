@@ -15,7 +15,7 @@ public class CallExpr extends PostfixExpr {
 				e.genC(pw);
 			}
 		}
-		pw.print(")");
+		pw.out.print(")");
 	}
 
 	private String id;

@@ -12,7 +12,7 @@ public class IfStmt extends Stmt {
 	public void genC(PW pw) {
 		pw.print("if (");
 		cond.genC(pw);
-		pw.println(") {");
+		pw.out.println(") {");
 		pw.add();
 		for(Stmt a : stmts){
 			a.genC(pw);

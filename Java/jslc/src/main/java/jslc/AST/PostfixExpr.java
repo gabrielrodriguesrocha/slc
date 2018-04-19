@@ -8,9 +8,9 @@ public class PostfixExpr extends Factor {
 	}
 
 	public void genC (PW pw) {
-		pw.print("(");
+		pw.out.print("(");
 		e.genC(pw);
-		pw.print(")");
+		pw.out.print(")");
 	}
 
 	private Expr e;

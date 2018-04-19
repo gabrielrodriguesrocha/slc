@@ -6,7 +6,7 @@ public class Identifier extends PostfixExpr {
 	}
 
 	public void genC (PW pw) {
-		pw.print(val);
+		pw.out.print(val);
 	}
 
 	private String val;

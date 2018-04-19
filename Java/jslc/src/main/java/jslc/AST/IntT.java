@@ -6,7 +6,7 @@ public class IntT extends PostfixExpr {
 	}
 
 	public void genC (PW pw) {
-		pw.print(String.valueOf(val));
+		pw.out.print(String.valueOf(val));
 	}
 
 	private int val;
