@@ -24,21 +24,13 @@ public class PW {
    }
    
    public void print( String s ) {
-      //out.print( space.substring(0, currentIndent) );
+      out.print( space.substring(0, currentIndent) );
       out.print(s);
    }
    
    public void println( String s ) {
-      if(s.equals("}")){
-            sub();
-            out.println("");
-            out.print( space.substring(0, currentIndent) );
-        }
-      out.println(s);
-      if(s.equals(") {") || s.equals("else {")){
-          add();
-      }
       out.print( space.substring(0, currentIndent) );
+      out.println(s);
    }
    
    int currentIndent = 0;

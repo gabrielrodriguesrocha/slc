@@ -7,7 +7,7 @@ public class AssignStmt extends Stmt {
 
 	public void genC(PW pw) {
 		e.genC(pw);
-		pw.println(";");
+		pw.out.println(";");
 	}
 
 	private AssignExpr e;
