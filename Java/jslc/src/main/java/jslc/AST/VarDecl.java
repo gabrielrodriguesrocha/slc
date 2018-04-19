@@ -5,13 +5,13 @@ import java.util.*;
 import jslc.Lexer.Symbol;
 
 public class VarDecl extends Decl {
-    public VarDecl (Symbol type, ArrayList<String> idList) {
+    public VarDecl (Type type, ArrayList<String> idList) {
         this.type = type;
         this.idList = idList;
     }
 
     public void genC (PW pw) {
-        pw.print(type.toString() + " ");
+		pw.print(type.getCname() + " ");
         Iterator<String> itr = idList.iterator();
 		pw.print(itr.next());
 		while (itr.hasNext()) {
@@ -21,6 +21,6 @@ public class VarDecl extends Decl {
         pw.println(";");
     }
 
-    private Symbol type;
+    private Type type;
     private ArrayList<String> idList;
 }

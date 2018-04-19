@@ -29,8 +29,7 @@ public class PW {
    }
    
    public void println( String s ) {
-      
-        if(s.equals("}")){
+      if(s.equals("}")){
             sub();
             out.println("");
             out.print( space.substring(0, currentIndent) );

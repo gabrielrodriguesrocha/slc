@@ -49,7 +49,7 @@ public class Compiler {
         if (lexer.token != Symbol.BEGIN)
             error.signal("Esperava BEGIN");
 		lexer.nextToken();
-		if (varType() || lexer.token == Symbol.STRING)
+		if (isVarType() || lexer.token == Symbol.STRING)
 			d = decl();
 		if (lexer.token == Symbol.FUNCTION)
         	f = funcDecl();
@@ -64,17 +64,17 @@ public class Compiler {
 		VarDecl varD;
 		ArrayList<Decl> decls = new ArrayList<Decl>();
 
-        while (lexer.token == Symbol.STRING || varType()) {
+        while (lexer.token == Symbol.STRING || isVarType()) {
 			if (lexer.token == Symbol.STRING) {
 				stringD = stringDecl();
 				decls.add(stringD);
             }
-            else if (varType()) { //perhaps refactor
+            else if (isVarType()) { //perhaps refactor
 				varD = varDecl();
 				decls.add(varD);
 			}
 		 }
-		 if (!varType() &&
+		 if (!isVarType() &&
 			  lexer.token != Symbol.STRING &&
 			  lexer.token != Symbol.FUNCTION &&
 			  !statementSymbol()) {
@@ -85,19 +85,16 @@ public class Compiler {
     }
 
 	// VarType ::= FLOAT | INT
-    public boolean varType() {
+    public boolean isVarType() {
 		return lexer.token == Symbol.FLOAT || lexer.token == Symbol.INT;
     }
        
 	// VarDecList ::= VarType IdList ; | empty
 	public VarDecl varDecl(){
-		Symbol type;
+		Type type;
 		ArrayList<String> vars;
 
-		if (!varType())
-			error.signal("Esperava INT ou FLOAT");	
-		type = lexer.token;
-        lexer.nextToken();
+		type = varType();
         vars = idList();		
 		if (lexer.token != Symbol.SEMICOLON)
             error.signal("Esperava ';'");
@@ -140,12 +137,12 @@ public class Compiler {
             error.signal("Esperava ;");
 		lexer.nextToken();
 
-		return new StringDecl(id, val);
+		return new StringDecl(Type.stringType, id, val);
     }
 
 	// AnyType ::= VarType | VOID
-    public boolean anyType() {
-		if (varType() || lexer.token == Symbol.VOID)
+    public boolean isAnyType() {
+		if (isVarType() || lexer.token == Symbol.VOID)
 			return true;
 		else
 			error.signal("Tipo de função não suportado, esperava INT, FLOAT ou VOID");
@@ -154,7 +151,7 @@ public class Compiler {
     
 	// FuncDecl ::= [FUNCTION AnyType ([ParamDeclList]*) BEGIN FuncBody END]*
     public ArrayList<FuncDecl> funcDecl() {
-		Symbol type;
+		Type type;
 		String id;
 		ArrayList<Param> params = new ArrayList<Param>();
 		ArrayList<Decl> decls = new ArrayList<Decl>();
@@ -163,10 +160,7 @@ public class Compiler {
 
         while(lexer.token == Symbol.FUNCTION) {
             lexer.nextToken();
-            if (!anyType())
-				error.signal("Tipo de função não suportado, esperava INT, FLOAT ou VOID");
-			type = lexer.token;
-            lexer.nextToken();
+			type = anyType();
             if (lexer.token != Symbol.IDENT)
 				error.signal("Esperava identificador");
 			id = lexer.getStringValue();
@@ -181,7 +175,7 @@ public class Compiler {
 			if (lexer.token != Symbol.BEGIN)
 				error.signal("Esperava begin");
 			lexer.nextToken();
-			if (varType() || lexer.token == Symbol.STRING)
+			if (isVarType() || lexer.token == Symbol.STRING)
 				decls = decl();
 			if (statementSymbol())
 				stmts = stmtList();
@@ -195,13 +189,12 @@ public class Compiler {
 
 	// ParamDeclList ::= [VarType Id ,]* | VarType Id
 	public ArrayList<Param> paramDeclList() {
-		Symbol type;
+		Type type;
 		String id;
 		ArrayList<Param> params = new ArrayList<Param>();
 
-		while (varType()) {
-			type = lexer.token;
-			lexer.nextToken();
+		while (isVarType()) {
+			type = varType();
 			if (lexer.token != Symbol.IDENT)
 				error.signal("Esperava identificador");
 			id = lexer.getStringValue();
@@ -238,6 +231,9 @@ public class Compiler {
 				else if (lexer.token == Symbol.LPAR) {
 					lexer.rollback();
 					stmts.add(callStmt());
+				}
+				else if (lexer.token == Symbol.EQUAL) {
+					error.signal("Esperava := ao invés de =");
 				}
 				else
 					error.signal("Esperava atribuição ou chamada de função");
@@ -571,6 +567,41 @@ public class Compiler {
 		else {
 			error.signal("Erro sintático");
 			return null;
+		}
+	}
+
+	// varType ::= INT | FLOAT | STRING
+	private Type varType() {
+		Type result = null;
+		
+		if (!isVarType()) {
+			error.signal("Esperava INT ou FLOAT");
+		}
+
+		if (lexer.token == Symbol.INT) {
+			result = Type.intType;
+		}
+		else if (lexer.token == Symbol.FLOAT) {
+			result = Type.floatType;
+		}
+
+		lexer.nextToken();
+		return result;
+	}
+
+	private Type anyType() {
+		Type result;
+
+		isAnyType();
+
+		if (isVarType()) {
+			result = varType();
+			return result;
+		}
+		else {
+			result = Type.voidType;
+			lexer.nextToken();
+			return result;
 		}
 	}
     

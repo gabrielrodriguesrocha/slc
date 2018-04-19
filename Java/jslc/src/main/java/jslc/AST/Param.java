@@ -1,17 +1,15 @@
 package jslc.AST;
 
-import jslc.Lexer.Symbol;
-
 public class Param {
-	public Param (Symbol type, String name) {
+	public Param (Type type, String name) {
 		this.type = type;
 		this.name = name;
 	}
 	public void genC(PW pw){
-		pw.print(type.toString() + " " + name);
+		pw.print(type.getCname() + " " + name);
 	}
 
-	private Symbol type;
+	private Type type;
 	private String name;
 
 }

@@ -1,11 +1,9 @@
 package jslc.AST;
 
-import jslc.Lexer.Symbol;
-
 import java.util.*;
 
 public class FuncDecl {
-	public FuncDecl (Symbol type, 
+	public FuncDecl (Type type, 
 					 String id, 
 					 ArrayList<Param> params, 
 					 ArrayList<Decl> decls,
@@ -18,8 +16,7 @@ public class FuncDecl {
 	}
 
 	public void genC(PW pw) {
-		pw.print(type.toString()+" ");
-		pw.print(id + " (");
+		pw.print(type.getCname() + " " + id + " (");
 		int i = 0;
 		for(Param a : params){
 			if(i != 0){
@@ -39,7 +36,7 @@ public class FuncDecl {
 		
 	}
 
-	private Symbol type;
+	private Type type;
 	private String id;
 	private ArrayList<Param> params;
 	private ArrayList<Decl> decls;

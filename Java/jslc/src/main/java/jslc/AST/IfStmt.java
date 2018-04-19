@@ -13,9 +13,11 @@ public class IfStmt extends Stmt {
 		pw.print("if (");
 		cond.genC(pw);
 		pw.println(") {");
+		pw.add();
 		for(Stmt a : stmts){
 			a.genC(pw);
 		}
+		pw.sub();
 		pw.println("}");
 		if(elsePart != null){
 			elsePart.genC(pw);

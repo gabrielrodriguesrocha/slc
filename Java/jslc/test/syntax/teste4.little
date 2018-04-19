@@ -1,0 +1,5 @@
+PROGRAM a BEGIN
+	FUNCTION VOID main () BEGIN
+		a = 2;
+	END
+END

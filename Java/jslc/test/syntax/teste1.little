@@ -1,0 +1,3 @@
+PROGRAM a BEGIN
+INT a b;
+END
