@@ -8,7 +8,7 @@ public class WriteStmt extends Stmt {
 	}
 
 	public void genC(PW pw) {
-		pw.print("printf(");
+		pw.print("printf(\"\",");
 		Iterator<String> itr = idList.iterator();
 		pw.out.print(itr.next());
 		while (itr.hasNext()) {

@@ -34,7 +34,7 @@ public class FuncDecl {
 			b.genC(pw);
 		}
 		pw.sub();
-		pw.println("}");
+		pw.println("}\n");
 		
 	}
 

@@ -7,7 +7,7 @@ public class CallStmt extends Stmt {
 	}
 
 	public void genC (PW pw) {
-		c.genC(pw);
+		c.genC(pw, true);
 		pw.out.println(";");
 	}
 
