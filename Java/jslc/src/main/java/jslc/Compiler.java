@@ -28,6 +28,7 @@ public class Compiler {
     public Program compile( char []p_input ) {
 		error = new CompilerError(null);
         lexer = new Lexer(p_input, error);
+		sTable = new SymbolTable();
 		error.setLexer(lexer);
         lexer.nextToken();
 		Program p = program();
@@ -145,11 +146,15 @@ public class Compiler {
 	// StringDeclList ::= [STRING id := STRINGLITERAL ;]*
     public StringDecl stringDecl(){
 		String id, val;
+		Object tmp;
 
         lexer.nextToken();
         if (lexer.token != Symbol.IDENT)
 			error.signal("Declaração de variável com palavra reservada");
 		id = lexer.getStringValue();
+		if ((tmp = sTable.get(id)) != null) {
+			error.signal("Variável já declarada");
+		}
         lexer.nextToken();
         if (lexer.token != Symbol.ASSIGN)
             error.signal("Esperava ':=''");
@@ -161,6 +166,8 @@ public class Compiler {
         if (lexer.token != Symbol.SEMICOLON)
             error.signal("Esperava ;");
 		lexer.nextToken();
+
+		sTable.putInGlobal(id, new Variable(Type.stringType, id));
 
 		return new StringDecl(Type.stringType, id, val);
     }
@@ -178,6 +185,10 @@ public class Compiler {
     public ArrayList<FuncDecl> funcDecl() {
 		Type type;
 		String id;
+		Object tmp;
+		Iterator<FuncDecl> itr;
+		boolean hasReturnStmt = false;
+
 		ArrayList<Param> params = new ArrayList<Param>();
 		ArrayList<Decl> decls = new ArrayList<Decl>();
 		ArrayList<Stmt> stmts = new ArrayList<Stmt>();
@@ -189,6 +200,9 @@ public class Compiler {
             if (lexer.token != Symbol.IDENT)
 				error.signal("Esperava identificador");
 			id = lexer.getStringValue();
+			if ((tmp = sTable.getInGlobal(id)) != null) {
+				error.signal("Redefinição de função " + id);
+			}
             lexer.nextToken();
 		    if (lexer.token != Symbol.LPAR)
 				error.signal("Esperava '('");
@@ -204,11 +218,22 @@ public class Compiler {
 				decls = decl();
 			if (statementSymbol())
 				stmts = stmtList();
+			for (Stmt i : stmts) { // Muito primitivo
+				if (i instanceof ReturnStmt) {
+					hasReturnStmt = true;
+				}
+			}
+			if ((type == Type.intType || type == Type.floatType) &&
+				 !hasReturnStmt) {
+				error.signal("A função " + id + " não retorna");
+			}
 			if (lexer.token != Symbol.END)
 				error.signal("Esperava end");
 			lexer.nextToken();
 			functions.add(new FuncDecl (type, id, params, decls, stmts));
+			sTable.putInGlobal(id, new Function(type, params));
 		}
+
 		return functions;
     }
 
@@ -216,6 +241,7 @@ public class Compiler {
 	public ArrayList<Param> paramDeclList() {
 		Type type;
 		String id;
+		Param tmp;
 		ArrayList<Param> params = new ArrayList<Param>();
 
 		while (isVarType()) {
@@ -224,6 +250,10 @@ public class Compiler {
 				error.signal("Esperava identificador");
 			id = lexer.getStringValue();
 			lexer.nextToken();
+			tmp = new Param(type, id);
+			if (params.contains(tmp)) {
+				error.signal("Redefinição de variável " + id);
+			}
 			params.add(new Param(type, id));
 			if (lexer.token != Symbol.COMMA)
 				break;
