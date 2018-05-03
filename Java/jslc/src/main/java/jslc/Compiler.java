@@ -107,7 +107,7 @@ public class Compiler {
     public ArrayList <String> idList(boolean declaration) {
 		ArrayList <String> vars =  new ArrayList<String>();
         while (lexer.token == Symbol.IDENT) {
-			if (declaration && vars.contains(lexer.getStringValue()) {
+			if (declaration && vars.contains(lexer.getStringValue())) {
 				error.signal("Variável " + lexer.getStringValue() + " já declarada.");
 			}
 			vars.add(lexer.getStringValue());
