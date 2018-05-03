@@ -95,7 +95,7 @@ public class Compiler {
 		ArrayList<String> vars;
 
 		type = varType();
-        vars = idList();		
+        vars = idList(true);
 		if (lexer.token != Symbol.SEMICOLON)
             error.signal("Esperava ';'");
 		lexer.nextToken();
@@ -104,9 +104,12 @@ public class Compiler {
     }
 	
 	// IdList ::= Id [, IdList]* | Id
-    public ArrayList <String> idList() {
+    public ArrayList <String> idList(boolean declaration) {
 		ArrayList <String> vars =  new ArrayList<String>();
         while (lexer.token == Symbol.IDENT) {
+			if (declaration && vars.contains(lexer.getStringValue()) {
+				error.signal("Variável " + lexer.getStringValue() + " já declarada.");
+			}
 			vars.add(lexer.getStringValue());
             lexer.nextToken();
             if (lexer.token != Symbol.COMMA)
@@ -306,7 +309,7 @@ public class Compiler {
 		if (lexer.token != Symbol.LPAR)
 			error.signal ("Esperava '('");
 		lexer.nextToken();
-		ids = idList();
+		ids = idList(false);
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();
@@ -327,7 +330,7 @@ public class Compiler {
 		if (lexer.token != Symbol.LPAR)
 			error.signal ("Esperava '('");
 		lexer.nextToken();
-		ids = idList();
+		ids = idList(false);
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();
@@ -607,6 +610,7 @@ public class Compiler {
     
 	private Lexer lexer;
     private CompilerError error;
+	private SymbolTable sTable;
 
 }
     

@@ -2,8 +2,6 @@ package jslc.AST;
 
 import java.util.*;
 
-import jslc.Lexer.Symbol;
-
 public class VarDecl extends Decl {
     public VarDecl (Type type, ArrayList<String> idList) {
         this.type = type;
