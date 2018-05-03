@@ -92,10 +92,11 @@ public class Compiler {
 	// VarDecList ::= VarType IdList ; | empty
 	public VarDecl varDecl(){
 		Type type;
-		ArrayList<String> vars;
+		Hashtable<String, Object> vars;
 
 		type = varType();
-        vars = idList(true);
+		vars = idList(type);
+		sTable.putAllInLocal(vars);
 		if (lexer.token != Symbol.SEMICOLON)
             error.signal("Esperava ';'");
 		lexer.nextToken();
@@ -104,17 +105,37 @@ public class Compiler {
     }
 	
 	// IdList ::= Id [, IdList]* | Id
-    public ArrayList <String> idList(boolean declaration) {
-		ArrayList <String> vars =  new ArrayList<String>();
+    public Hashtable<String, Object> idList(Type type) {
+		Hashtable<String, Object> vars =  new Hashtable<String, Object>();
         while (lexer.token == Symbol.IDENT) {
-			if (declaration && vars.contains(lexer.getStringValue())) {
+			if (sTable.getInLocal(lexer.getStringValue()) != null) {
 				error.signal("Variável " + lexer.getStringValue() + " já declarada.");
 			}
-			vars.add(lexer.getStringValue());
+			vars.put(lexer.getStringValue(), new Variable(type, lexer.getStringValue()));
             lexer.nextToken();
             if (lexer.token != Symbol.COMMA)
                 return vars;
             lexer.nextToken();
+        }
+		error.signal("Não é um identificador válido");
+		return null;
+	}
+	
+	public Hashtable<String, Object> idList() {
+		Hashtable<String, Object> vars =  new Hashtable<String, Object>();
+		Object tmp = new Object();
+        while (lexer.token == Symbol.IDENT) {
+			if ((tmp = sTable.get(lexer.getStringValue())) != null &&
+			   !(tmp instanceof Function)) { // Imprimir função? Checar melhor
+				vars.put(lexer.getStringValue(), tmp);
+            	lexer.nextToken();
+            	if (lexer.token != Symbol.COMMA)
+                	return vars;
+            	lexer.nextToken();
+			}
+			else {
+				error.signal("Variável não declarada");
+			}
         }
 		error.signal("Não é um identificador válido");
 		return null;
@@ -300,7 +321,7 @@ public class Compiler {
 	
 	// ReadStmt ::= READ ( IdList ) ;
 	public ReadStmt readStmt() {
-		ArrayList<String> ids;
+		Hashtable<String, Object> ids;
 		
 		if (lexer.token != Symbol.READ)
 			error.signal("Esperava read");
@@ -308,7 +329,7 @@ public class Compiler {
 		if (lexer.token != Symbol.LPAR)
 			error.signal ("Esperava '('");
 		lexer.nextToken();
-		ids = idList(false);
+		ids = idList();
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();
@@ -321,7 +342,7 @@ public class Compiler {
 	
 	// ReadStmt ::= WRITE ( IdList ) ;
 	public WriteStmt writeStmt() {
-		ArrayList<String> ids;
+		Hashtable<String, Object> ids;
 
 		if (lexer.token != Symbol.WRITE)
 			error.signal("Esperava read");
@@ -329,7 +350,7 @@ public class Compiler {
 		if (lexer.token != Symbol.LPAR)
 			error.signal ("Esperava '('");
 		lexer.nextToken();
-		ids = idList(false);
+		ids = idList();
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();

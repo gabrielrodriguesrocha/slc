@@ -11,9 +11,17 @@ public class SymbolTable {
 	public Object putInGlobal( String key, Object value ) {
 		return globalTable.put(key, value);
 	}
+
+	public void putAllInGlobal( Hashtable<String, Object> table ) {
+		globalTable.putAll(table);
+	}
 	
 	public Object putInLocal( String key, Object value ) {
 		return localTable.put(key, value);
+	}
+
+	public void putAllInLocal( Hashtable<String, Object> table ) {
+		localTable.putAll(table);
 	}
 	
 	public Object getInLocal( Object key ) {

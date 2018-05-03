@@ -3,14 +3,15 @@ package jslc.AST;
 import java.util.*;
 
 public class VarDecl extends Decl {
-    public VarDecl (Type type, ArrayList<String> idList) {
+    public VarDecl (Type type, Hashtable<String, Object> idList) {
         this.type = type;
         this.idList = idList;
     }
 
     public void genC (PW pw) {
 		pw.print(type.getCname() + " ");
-        Iterator<String> itr = idList.iterator();
+        Collection<Object> col = idList.values();
+		Iterator<Object> itr = col.iterator();
 		pw.out.print(itr.next());
 		while (itr.hasNext()) {
 			pw.out.print(", ");
@@ -20,5 +21,5 @@ public class VarDecl extends Decl {
     }
 
     private Type type;
-    private ArrayList<String> idList;
+    private Hashtable<String, Object> idList;
 }
