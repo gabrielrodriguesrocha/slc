@@ -7,7 +7,7 @@ public class StringType extends Type {
 		super(Symbol.STRING);
 	}
 	public String getCname() {
-		return "char []";
+		return "char *";
 	}
 
 	private Symbol name;

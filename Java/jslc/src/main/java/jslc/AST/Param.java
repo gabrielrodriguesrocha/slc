@@ -6,7 +6,7 @@ public class Param {
 		this.name = name;
 	}
 	public void genC(PW pw){
-		pw.print(type.getCname() + " " + name);
+		pw.out.print(type.getCname() + " " + name);
 	}
 
 	private Type type;

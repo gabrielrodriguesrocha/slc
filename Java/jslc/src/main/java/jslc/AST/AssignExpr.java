@@ -6,8 +6,12 @@ public class AssignExpr extends Expr {
 		this.e = e;
 	}
 
-	public void genC (PW pw) {
-		pw.print(id+" = ");
+	public void genC (PW pw, boolean indent) {
+		if(indent) {
+			pw.print(id+" = ");
+		} else {
+			pw.out.print(id+" = ");
+		}
 		e.genC(pw);
 	}
 

@@ -202,12 +202,11 @@ public class Compiler {
 				error.signal("Esperava identificador");
 			id = lexer.getStringValue();
 			lexer.nextToken();
+			params.add(new Param(type, id));
 			if (lexer.token != Symbol.COMMA)
 				break;
 			lexer.nextToken();
-			params.add(new Param(type, id));
 		}
-		
 		return params;
 	}
 

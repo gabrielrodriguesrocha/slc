@@ -9,7 +9,7 @@ public class Program {
 	}
 
 	public void genC(PW pw) {
-		pw.println("#include <stdio.h>");
+		pw.out.println("#include <stdio.h>");
 		for (Decl a : d) {
 			a.genC(pw);
 		}

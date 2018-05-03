@@ -9,7 +9,7 @@ public class FactorTail {
 	}
 
 	public void genC (PW pw) {
-		pw.print(" " + op.toString() + " ");
+		pw.out.print(" " + op.toString() + " ");
 		p.genC(pw);
 	}
 

@@ -5,7 +5,7 @@ import java.util.*;
 public class Factor extends Expr {
 	public Factor () {}
 
-	public Factor (Expr p, ArrayList<FactorTail> tail) {
+	public Factor (PostfixExpr p, ArrayList<FactorTail> tail) {
 		this.p = p;
 		this.tail = tail;
 	}
@@ -17,6 +17,6 @@ public class Factor extends Expr {
 		}
 	}
 
-	private Expr p;
+	private PostfixExpr p;
 	private ArrayList<FactorTail> tail;
 }	

@@ -17,7 +17,7 @@ BEGIN
 		IF (n < 3) THEN
 			RETURN 1;
 		ELSE
-			RETURN fib(x - 1) + fib(x - 2);
+			RETURN fib(n - 1) + fib(n - 2);
 		ENDIF
 	END
 

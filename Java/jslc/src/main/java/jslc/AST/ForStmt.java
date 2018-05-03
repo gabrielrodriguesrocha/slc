@@ -12,21 +12,22 @@ public class ForStmt extends Stmt {
 	public void genC(PW pw){
 		pw.print("for (");
 		if(init != null){
-			init.genC(pw);
+			init.genC(pw, false);
 		}
-		pw.print("; ");
+		pw.out.print("; ");
 		if(cond != null){
 			cond.genC(pw);
 		}
-		pw.print("; ");
+		pw.out.print("; ");
 		if(step != null){
-			step.genC(pw);
+			step.genC(pw, false);
 		}
-		pw.println(") {");
-
+		pw.out.println(") {");
+		pw.add();
 		for(Stmt a : stmts){
 			a.genC(pw);
 		}
+		pw.sub();
 		pw.println("}");
 
 	}

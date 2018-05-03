@@ -7,7 +7,7 @@ import jslc.Error.*;
 public class Lexer {
 
 	// apenas para verificacao lexica
-    public static final boolean DEBUGLEXER = true;
+    public static final boolean DEBUGLEXER = false;
     public static boolean LOOKAHEADCALL = false;
     
     public Lexer( char []input, CompilerError error ) {
