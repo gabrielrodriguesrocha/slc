@@ -24,11 +24,11 @@ public class SymbolTable {
 		localTable.putAll(table);
 	}
 	
-	public Object getInLocal( Object key ) {
+	public Object getInLocal( String key ) {
 		return localTable.get(key);
 	}
 	
-	public Object getInGlobal( Object key ) {
+	public Object getInGlobal( String key ) {
 		return globalTable.get(key);
 	}
 	

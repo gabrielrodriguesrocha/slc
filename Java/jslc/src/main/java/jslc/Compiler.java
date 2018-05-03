@@ -121,13 +121,14 @@ public class Compiler {
 		return null;
 	}
 	
-	public Hashtable<String, Object> idList() {
-		Hashtable<String, Object> vars =  new Hashtable<String, Object>();
-		Object tmp = new Object();
+	public ArrayList<Variable> idList() {
+		ArrayList<Variable> vars =  new ArrayList<Variable>();
+		Object tmp;
+
         while (lexer.token == Symbol.IDENT) {
 			if ((tmp = sTable.get(lexer.getStringValue())) != null &&
-			   !(tmp instanceof Function)) { // Imprimir função? Checar melhor
-				vars.put(lexer.getStringValue(), tmp);
+			   (tmp instanceof Variable)) { // Imprimir função? Checar melhor
+				vars.add((Variable) tmp);
             	lexer.nextToken();
             	if (lexer.token != Symbol.COMMA)
                 	return vars;
@@ -321,7 +322,7 @@ public class Compiler {
 	
 	// ReadStmt ::= READ ( IdList ) ;
 	public ReadStmt readStmt() {
-		Hashtable<String, Object> ids;
+		ArrayList<Variable> ids;
 		
 		if (lexer.token != Symbol.READ)
 			error.signal("Esperava read");
@@ -342,7 +343,7 @@ public class Compiler {
 	
 	// ReadStmt ::= WRITE ( IdList ) ;
 	public WriteStmt writeStmt() {
-		Hashtable<String, Object> ids;
+		ArrayList<Variable> ids;
 
 		if (lexer.token != Symbol.WRITE)
 			error.signal("Esperava read");

@@ -3,14 +3,13 @@ package jslc.AST;
 import java.util.*;
 
 public class ReadStmt extends Stmt {
-	public ReadStmt	(Hashtable<String, Object> idList) {
+	public ReadStmt	(ArrayList<Variable> idList) {
 		this.idList = idList;
 	}
 
 	public void genC(PW pw) {
 		pw.print("scanf(\"\",");
-		Collection<Object> col = idList.values();
-		Iterator<Object> itr = col.iterator();
+		Iterator<Variable> itr = idList.iterator();
 		pw.out.print(itr.next());
 		while (itr.hasNext()) {
 			pw.out.print(", ");
@@ -19,5 +18,5 @@ public class ReadStmt extends Stmt {
 		pw.out.println(");");
 	}
 
-	private Hashtable<String, Object> idList;
+	private ArrayList<Variable> idList;
 }
