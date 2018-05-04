@@ -8,43 +8,44 @@ public class ReadStmt extends Stmt {
 	}
 
 	public void genC(PW pw) {
-		boolean[] isString = new boolean[idList.size()];
-		int i = 0;
 		pw.print("scanf(\"");
 		Iterator<Variable> itr = idList.iterator(); //iterador para as variaveis
 		
-		for(Variable a: idList){
-			if((((a.getType())).getname()).equals("string")){
-				isString[i] = true;
-				
-			}else{
-				isString[i] = false;
-				
+		if (itr.hasNext()) {
+			walk = itr.next();
+			pw.out.print(typePrint(walk));
+			while(itr.hasNext()) {
+				pw.out.print(" ");
+				walk = itr.next();
+				pw.out.print(typePrint(walk));
 			}
-			i++;
-			pw.out.print(" ");
-			pw.out.print(typePrint(a));
+
 		}
+
+		pw.out.print("\", ");
 		
-		if(isString[0] == false){
+		itr = idList.iterator();
+		walk = itr.next();
+		if(walk.getType() instanceof FloatType ||
+		   walk.getType() instanceof IntType){
 			pw.out.print("&");
 		}
-		pw.out.print((itr.next()).getIdentifier());
-		i = 1;
+		pw.out.print(walk.getIdentifier());
 		while (itr.hasNext()) {
 			pw.out.print(", ");
-			if(isString[i] == false){
+			walk = itr.next();
+			if(walk.getType() instanceof FloatType ||
+			   walk.getType() instanceof IntType){
 				pw.out.print("&");
 			}
-			pw.out.print((itr.next()).getIdentifier());
-			i++;
+			pw.out.print(walk.getIdentifier());
 		}
 		pw.out.println(");");
 	}
 	private String typePrint(Variable a){ //de acordo com o tipo de variavel volta a flag para o printf do C
-		if(((a.getType()).getname()).equals("float")){
+		if(a.getType() instanceof FloatType){
 			return "%f";
-		}else if(((a.getType()).getname()).equals("int")){
+		}else if(a.getType() instanceof IntType){
 			return "%d";
 		}else{
 			return "%s";
@@ -52,4 +53,5 @@ public class ReadStmt extends Stmt {
 		
 	}
 	private ArrayList<Variable> idList;
+	private Variable walk;
 }

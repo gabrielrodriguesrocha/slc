@@ -31,6 +31,11 @@ public class SymbolTable {
 	public Object getInGlobal( String key ) {
 		return globalTable.get(key);
 	}
+
+	public void moveLocalToGlobal () {
+		globalTable.putAll(localTable);
+		removeLocalIdent();
+	}
 	
 	public Object get( String key ) {
 	// returns the object corresponding to the key.

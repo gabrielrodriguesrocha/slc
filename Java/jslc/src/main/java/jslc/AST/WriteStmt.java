@@ -31,14 +31,15 @@ public class WriteStmt extends Stmt {
 	}
 	
 	private String typePrint(Variable a){ //de acordo com o tipo de variavel volta a flag para o printf do C
-		if(((a.getType()).getname()).equals("float")){
+		if(a.getType() instanceof FloatType) {
 			return "%f";
-		}else if(((a.getType()).getname()).equals("int")){
-			return "%d";
-		}else{
-			return "%s";
 		}
-		
+		else if(a.getType() instanceof IntType) {
+			return "%d";
+		}
+		else {
+			return "%s";
+		}	
 	}
 
 	private ArrayList<Variable> idList;

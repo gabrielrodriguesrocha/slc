@@ -52,6 +52,7 @@ public class Compiler {
 		lexer.nextToken();
 		if (isVarType() || lexer.token == Symbol.STRING)
 			d = decl();
+		sTable.moveLocalToGlobal();
 		if (lexer.token == Symbol.FUNCTION)
         	f = funcDecl();
         if (lexer.token != Symbol.END)
@@ -219,9 +220,10 @@ public class Compiler {
 			if (statementSymbol())
 				stmts = stmtList();
 			for (Stmt i : stmts) { // Muito primitivo
+				System.out.println(i);
 				if (i instanceof ReturnStmt) {
 					hasReturnStmt = true;
-				}
+				} 
 			}
 			if ((type == Type.intType || type == Type.floatType) &&
 				 !hasReturnStmt) {

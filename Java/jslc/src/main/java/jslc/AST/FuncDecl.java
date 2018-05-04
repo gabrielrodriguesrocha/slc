@@ -17,13 +17,15 @@ public class FuncDecl {
 
 	public void genC(PW pw) {
 		pw.out.print(type.getCname() + " " + id + " (");
-		int i = 0;
-		for(Param a : params){
-			if(i != 0){
-				pw.out.print(",");
+		itr = params.iterator();
+		if(itr.hasNext()){
+			itr = params.iterator();
+			itr.next().genC(pw);
+
+			while(itr.hasNext()) {
+				itr.next().genC(pw);
+				pw.out.print(", ");
 			}
-			a.genC(pw);
-			i = 1;
 		}
 		pw.out.println(") {");
 		pw.add();
@@ -43,4 +45,5 @@ public class FuncDecl {
 	private ArrayList<Param> params;
 	private ArrayList<Decl> decls;
 	private ArrayList<Stmt> stmts;
+	private Iterator<Param> itr;
 }
