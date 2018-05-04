@@ -9,6 +9,9 @@ public class Variable implements Typeable{
 	public Type getType() {
 		return type;
 	}
+	public String getIdentifier(){
+		return identifier;
+	}
 
 	private Type type;
 	private String identifier;
