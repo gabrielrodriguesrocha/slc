@@ -94,7 +94,7 @@ public class Compiler {
 	// VarDecList ::= VarType IdList ; | empty
 	public VarDecl varDecl(){
 		Type type;
-		Hashtable<String, Object> vars;
+		Hashtable<String, NamedTypeable> vars;
 
 		type = varType();
 		vars = idList(type);
@@ -107,8 +107,8 @@ public class Compiler {
     }
 	
 	// IdList ::= Id [, IdList]* | Id
-    public Hashtable<String, Object> idList(Type type) {
-		Hashtable<String, Object> vars =  new Hashtable<String, Object>();
+    public Hashtable<String, NamedTypeable> idList(Type type) {
+		Hashtable<String, NamedTypeable> vars =  new Hashtable<String, NamedTypeable>();
         while (lexer.token == Symbol.IDENT) {
 			if (sTable.getInLocal(lexer.getStringValue()) != null) {
 				error.signal("Variável " + lexer.getStringValue() + " já declarada.");
@@ -125,7 +125,7 @@ public class Compiler {
 	
 	public ArrayList<Variable> idList() {
 		ArrayList<Variable> vars =  new ArrayList<Variable>();
-		Object tmp;
+		NamedTypeable tmp;
 
         while (lexer.token == Symbol.IDENT) {
 			if ((tmp = sTable.get(lexer.getStringValue())) != null &&
@@ -147,7 +147,7 @@ public class Compiler {
 	// StringDeclList ::= [STRING id := STRINGLITERAL ;]*
     public StringDecl stringDecl(){
 		String id, val;
-		Object tmp;
+		NamedTypeable tmp;
 
         lexer.nextToken();
         if (lexer.token != Symbol.IDENT)
@@ -186,7 +186,7 @@ public class Compiler {
     public ArrayList<FuncDecl> funcDecl() {
 		Type type;
 		String id;
-		Object tmp;
+		NamedTypeable tmp;
 		Iterator<FuncDecl> itr;
 		boolean hasReturnStmt = false;
 
@@ -233,7 +233,7 @@ public class Compiler {
 				error.signal("Esperava end");
 			lexer.nextToken();
 			functions.add(new FuncDecl (type, id, params, decls, stmts));
-			sTable.putInGlobal(id, new Function(type, params));
+			sTable.putInGlobal(id, new Function(id, type, params));
 		}
 
 		return functions;

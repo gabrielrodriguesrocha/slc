@@ -2,33 +2,35 @@ package jslc;
 
 import java.util.*;
 
+import jslc.AST.NamedTypeable;
+
 public class SymbolTable {
 	public SymbolTable() {
-		globalTable = new Hashtable<String, Object>();
-		localTable = new Hashtable<String, Object>();
+		globalTable = new Hashtable<String, NamedTypeable>();
+		localTable = new Hashtable<String, NamedTypeable>();
 	}
 	
-	public Object putInGlobal( String key, Object value ) {
+	public NamedTypeable putInGlobal( String key, NamedTypeable value ) {
 		return globalTable.put(key, value);
 	}
 
-	public void putAllInGlobal( Hashtable<String, Object> table ) {
+	public void putAllInGlobal( Hashtable<String, NamedTypeable> table ) {
 		globalTable.putAll(table);
 	}
 	
-	public Object putInLocal( String key, Object value ) {
+	public NamedTypeable putInLocal( String key, NamedTypeable value ) {
 		return localTable.put(key, value);
 	}
 
-	public void putAllInLocal( Hashtable<String, Object> table ) {
+	public void putAllInLocal( Hashtable<String, NamedTypeable> table ) {
 		localTable.putAll(table);
 	}
 	
-	public Object getInLocal( String key ) {
+	public NamedTypeable getInLocal( String key ) {
 		return localTable.get(key);
 	}
 	
-	public Object getInGlobal( String key ) {
+	public NamedTypeable getInGlobal( String key ) {
 		return globalTable.get(key);
 	}
 
@@ -37,9 +39,9 @@ public class SymbolTable {
 		removeLocalIdent();
 	}
 	
-	public Object get( String key ) {
+	public NamedTypeable get( String key ) {
 	// returns the object corresponding to the key.
-		Object result;
+		NamedTypeable result;
 		if ( (result = localTable.get(key)) != null ) {
 			// found local identifier
 			return result;
@@ -55,6 +57,6 @@ public class SymbolTable {
 		localTable.clear();
 	}
 	
-	private Hashtable<String, Object> globalTable, localTable;
+	private Hashtable<String, NamedTypeable> globalTable, localTable;
 }
 

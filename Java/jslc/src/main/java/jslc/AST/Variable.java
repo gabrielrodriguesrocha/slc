@@ -1,6 +1,6 @@
 package jslc.AST;
 
-public class Variable implements Typeable{
+public class Variable implements NamedTypeable{
 	public Variable (Type type, String identifier) {
 		this.type = type;
 		this.identifier = identifier;

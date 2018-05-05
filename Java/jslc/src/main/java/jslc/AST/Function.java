@@ -2,8 +2,9 @@ package jslc.AST;
 
 import java.util.*;
 
-public class Function implements Typeable{
-	public Function (Type type, ArrayList<Param> params) {
+public class Function implements NamedTypeable{
+	public Function (String identifier, Type type, ArrayList<Param> params) {
+		this.identifier = identifier;
 		this.type = type;
 		this.params = params;
 	}
@@ -12,6 +13,11 @@ public class Function implements Typeable{
 		return type;
 	}
 
+	public String getIdentifier() {
+		return identifier;
+	}
+
 	private Type type;
 	private ArrayList<Param> params;
+	private String identifier;
 }
