@@ -31,6 +31,9 @@ public class ForStmt extends Stmt {
 		pw.println("}");
 
 	}
+	public ArrayList<Stmt> getStmts(){
+		return stmts;	
+	}
 	private AssignExpr init;
 	private CompExpr cond;
 	private AssignExpr step;

@@ -18,6 +18,9 @@ public class ElseStmt {
 		pw.sub();
 		pw.println("}");
 	}
+	public ArrayList<Stmt> getStmts(){
+		return stmts;	
+	}
 
 	private ArrayList <Stmt> stmts;
 }

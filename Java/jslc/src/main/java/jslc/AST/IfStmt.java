@@ -24,6 +24,13 @@ public class IfStmt extends Stmt {
 		}
 	}
 
+	public ArrayList<Stmt> getStmts(){
+		return stmts;	
+	}
+	public ElseStmt getElseStmt(){
+		return elsePart;
+	}
+
 	private CompExpr cond;
 	private ArrayList<Stmt> stmts;
 	private ElseStmt elsePart;
