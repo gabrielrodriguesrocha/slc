@@ -219,12 +219,7 @@ public class Compiler {
 				decls = decl();
 			if (statementSymbol())
 				stmts = stmtList();
-			for (Stmt i : stmts) { // Muito primitivo
-				System.out.println(i);
-				if (i instanceof ReturnStmt) {
-					hasReturnStmt = true;
-				} 
-			}
+			hasReturnStmt = verifyReturnStmt(stmts);
 			if ((type == Type.intType || type == Type.floatType) &&
 				 !hasReturnStmt) {
 				error.signal("A função " + id + " não retorna");
@@ -660,7 +655,35 @@ public class Compiler {
 			return result;
 		}
 	}
-    
+    	private boolean verifyReturnStmt(ArrayList<Stmt> stmts){
+		IfStmt a;
+		ElseStmt b;
+		ForStmt c;
+		
+		for (Stmt i : stmts) {
+			//System.out.println(i);
+			if (i instanceof ReturnStmt) {
+				return true;
+			}
+			if( i instanceof IfStmt){
+				a = (IfStmt)i;
+				if(verifyReturnStmt(a.getStmts())){
+					return true;
+				}else{
+					b = a.getElseStmt();
+					if(verifyReturnStmt(b.getStmts())){
+						return true;
+					} 
+				}			
+			}else if(i instanceof ForStmt){
+				c = (ForStmt)i;
+				if(verifyReturnStmt(c.getStmts())){
+					return true;
+				}
+			} 
+		}
+		return false;
+	}
 	private Lexer lexer;
     private CompilerError error;
 	private SymbolTable sTable;
