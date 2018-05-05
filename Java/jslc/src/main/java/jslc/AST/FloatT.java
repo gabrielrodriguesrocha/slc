@@ -9,5 +9,9 @@ public class FloatT extends PostfixExpr {
 		pw.out.print(String.valueOf(val));
 	}
 
+	public Type getType () {
+		return Type.floatType;
+	}
+
 	private float val;
 }

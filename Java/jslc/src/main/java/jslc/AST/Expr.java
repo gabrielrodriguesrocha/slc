@@ -2,7 +2,7 @@ package jslc.AST;
 
 import java.util.*;
 
-public class Expr {
+public class Expr implements Typeable {
 	public Expr () {}
 	
 	public Expr (Factor f, ArrayList<ExprTail> tail) {
@@ -17,6 +17,26 @@ public class Expr {
 		}
 	}
 
+	public Type getType () {
+		t = f.getType();
+		if (t == Type.voidType) {
+			return t;
+		}
+		for (ExprTail e : tail) {
+			if (t != e.getType()) {
+				if ((e.getType() == Type.intType && t == Type.floatType) ||
+					(e.getType() == Type.intType && t == Type.floatType)) {
+					t = Type.floatType;
+				}
+				else if (e.getType() == Type.voidType) {
+					t = Type.voidType;
+				}
+			}
+		}
+		return t;
+	}
+
 	private Factor f;
 	private ArrayList<ExprTail> tail;
+	private Type t;
 }	

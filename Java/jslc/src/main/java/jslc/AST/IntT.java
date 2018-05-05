@@ -9,5 +9,9 @@ public class IntT extends PostfixExpr {
 		pw.out.print(String.valueOf(val));
 	}
 
+	public Type getType () {
+		return Type.intType;
+	}
+
 	private int val;
 }

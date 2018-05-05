@@ -29,6 +29,7 @@ public class Compiler {
 		error = new CompilerError(null);
         lexer = new Lexer(p_input, error);
 		sTable = new SymbolTable();
+		calls = new ArrayList<CallExpr>();
 		error.setLexer(lexer);
         lexer.nextToken();
 		Program p = program();
@@ -186,8 +187,6 @@ public class Compiler {
     public ArrayList<FuncDecl> funcDecl() {
 		Type type;
 		String id;
-		NamedTypeable tmp;
-		Iterator<FuncDecl> itr;
 		boolean hasReturnStmt = false;
 
 		ArrayList<Param> params = new ArrayList<Param>();
@@ -201,7 +200,7 @@ public class Compiler {
             if (lexer.token != Symbol.IDENT)
 				error.signal("Esperava identificador");
 			id = lexer.getStringValue();
-			if ((tmp = sTable.getInGlobal(id)) != null) {
+			if (sTable.getInGlobal(id) != null) {
 				error.signal("Redefinição de função " + id);
 			}
             lexer.nextToken();
@@ -219,12 +218,7 @@ public class Compiler {
 				decls = decl();
 			if (statementSymbol())
 				stmts = stmtList();
-			for (Stmt i : stmts) { // Muito primitivo
-				System.out.println(i);
-				if (i instanceof ReturnStmt) {
-					hasReturnStmt = true;
-				} 
-			}
+			hasReturnStmt = checkReturnStmt(stmts);
 			if ((type == Type.intType || type == Type.floatType) &&
 				 !hasReturnStmt) {
 				error.signal("A função " + id + " não retorna");
@@ -237,7 +231,28 @@ public class Compiler {
 		}
 
 		return functions;
-    }
+	}
+	
+	boolean checkReturnStmt(ArrayList<Stmt> stmts) {
+		for (Stmt i : stmts) { // Muito primitivo
+			if (i instanceof ReturnStmt) {
+				return true;
+			}
+			else if (i instanceof IfStmt) {
+				if (((IfStmt) i).getElseStmt() != null) {
+					return checkReturnStmt(((IfStmt) i).getStmts()) &&
+						   checkReturnStmt(((IfStmt) i).getElseStmt().getStmts());
+				}
+				else {
+					return checkReturnStmt(((IfStmt) i).getStmts());
+				}
+			}
+			else if (i instanceof ForStmt) {
+				return checkReturnStmt(((ForStmt) i).getStmts());
+			}
+		}
+		return false;
+	}
 
 	// ParamDeclList ::= [VarType Id ,]* | VarType Id
 	public ArrayList<Param> paramDeclList() {
@@ -336,20 +351,41 @@ public class Compiler {
 	// CallExpr ::= Id ( ExprList )
 	public CallExpr callExpr() {
 		String id;
+		NamedTypeable f;
 		ArrayList<Expr> exprs = new ArrayList<Expr>();
+		Iterator<Expr> e;
+		Iterator<Param> p;
+		int pos = 1;
 		
 		if (lexer.token != Symbol.IDENT)
 			error.signal("Esperava identificador");
 		id = lexer.getStringValue();
+		if ((f = sTable.getInGlobal(id)) == null ||
+			 !(f instanceof Function) ) { // Separar esse erro depois ou fazer uma malandragem diferente
+			error.signal("Função " + id + "não declarada");
+		}
 		lexer.nextToken();
 		if (lexer.token != Symbol.LPAR)
 			error.signal ("Esperava '('");
 		lexer.nextToken();
 		exprs = exprList();
+		if (exprs.size() != ((Function) f).getParams().size()) {
+			error.signal("Número errado de parâmetros, esperava " + ((Function) f).getParams().size() + " parâmetros");
+		}
+		e = exprs.iterator();
+		p = ((Function) f).getParams().iterator();
+		while (e.hasNext() && p.hasNext()) {
+			Expr walk_e = e.next();
+			Param walk_p = p.next();
+			if (walk_e.getType() != walk_p.getType()) {
+				error.signal("Parâmetro na posição " + pos + " é do tipo " + walk_p.getType().getName() +
+							 ", esperava parâmetro do tipo " + walk_e.getType().getName());
+			}
+		}
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();
-		return new CallExpr(id, exprs);
+		return new CallExpr((Function) f, exprs);
 	}
 	
 	// ReadStmt ::= READ ( IdList ) ;
@@ -664,6 +700,7 @@ public class Compiler {
 	private Lexer lexer;
     private CompilerError error;
 	private SymbolTable sTable;
+	private ArrayList<CallExpr> calls;
 
 }
     

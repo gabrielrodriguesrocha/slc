@@ -17,6 +17,10 @@ public class Function implements NamedTypeable{
 		return identifier;
 	}
 
+	public ArrayList<Param> getParams() {
+		return params;
+	}
+
 	private Type type;
 	private ArrayList<Param> params;
 	private String identifier;

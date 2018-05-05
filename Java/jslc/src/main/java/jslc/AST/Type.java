@@ -12,7 +12,7 @@ public abstract class Type {
 	public static Type floatType = new FloatType ();
 	public static Type voidType = new VoidType ();
 
-	public String getname() {
+	public String getName() {
 		return name.toString();
 	}
 

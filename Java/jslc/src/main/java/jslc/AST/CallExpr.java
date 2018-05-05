@@ -3,7 +3,7 @@ package jslc.AST;
 import java.util.*;
 
 public class CallExpr extends PostfixExpr {
-	public CallExpr(String id, ArrayList<Expr> exprList) {
+	public CallExpr(Function id, ArrayList<Expr> exprList) {
 		this.id = id;
 		this.exprList = exprList;
 	}
@@ -36,7 +36,19 @@ public class CallExpr extends PostfixExpr {
 		pw.out.print(")");
 	}
 
-	private String id;
+	public Type getType () {
+		return id.getType();
+	}
+
+	public Function getFunction () {
+		return id;
+	}
+
+	public ArrayList <Expr> getArgs () {
+		return exprList;
+	}
+
+	private Function id;
 	private ArrayList <Expr> exprList;
 	private Iterator <Expr> itr;
 }
