@@ -240,7 +240,7 @@ public class Compiler {
 			}
 			else if (i instanceof IfStmt) {
 				if (((IfStmt) i).getElseStmt() != null) {
-					return checkReturnStmt(((IfStmt) i).getStmts()) &&
+					return checkReturnStmt(((IfStmt) i).getStmts()) ||
 						   checkReturnStmt(((IfStmt) i).getElseStmt().getStmts());
 				}
 				else {
@@ -696,35 +696,7 @@ public class Compiler {
 			return result;
 		}
 	}
-    	private boolean verifyReturnStmt(ArrayList<Stmt> stmts){
-		IfStmt a;
-		ElseStmt b;
-		ForStmt c;
-		
-		for (Stmt i : stmts) {
-			//System.out.println(i);
-			if (i instanceof ReturnStmt) {
-				return true;
-			}
-			if( i instanceof IfStmt){
-				a = (IfStmt)i;
-				if(verifyReturnStmt(a.getStmts())){
-					return true;
-				}else{
-					b = a.getElseStmt();
-					if(verifyReturnStmt(b.getStmts())){
-						return true;
-					} 
-				}			
-			}else if(i instanceof ForStmt){
-				c = (ForStmt)i;
-				if(verifyReturnStmt(c.getStmts())){
-					return true;
-				}
-			} 
-		}
-		return false;
-	}
+
 	private Lexer lexer;
     private CompilerError error;
 	private SymbolTable sTable;
