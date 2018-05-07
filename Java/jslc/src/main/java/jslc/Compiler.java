@@ -208,6 +208,10 @@ public class Compiler {
 				error.signal("Esperava '('");
 			lexer.nextToken();
 			params = paramDeclList();
+			for (Param i : params) {
+				sTable.putInLocal(i.getIdentifier(), new Variable(i.getType(), i.getIdentifier()));
+			}
+			sTable.putInGlobal(id, new Function(id, type, params));
 			if (lexer.token != Symbol.RPAR)
 				error.signal("Esperava ')'");
 			lexer.nextToken();
@@ -227,7 +231,7 @@ public class Compiler {
 				error.signal("Esperava end");
 			lexer.nextToken();
 			functions.add(new FuncDecl (type, id, params, decls, stmts));
-			sTable.putInGlobal(id, new Function(id, type, params));
+			sTable.removeLocalIdent();
 		}
 
 		return functions;
@@ -362,7 +366,7 @@ public class Compiler {
 		id = lexer.getStringValue();
 		if ((f = sTable.getInGlobal(id)) == null ||
 			 !(f instanceof Function) ) { // Separar esse erro depois ou fazer uma malandragem diferente
-			error.signal("Função " + id + "não declarada");
+			error.signal("Função " + id + " não declarada");
 		}
 		lexer.nextToken();
 		if (lexer.token != Symbol.LPAR)
@@ -542,15 +546,25 @@ public class Compiler {
 	public AssignExpr assignExpr() {
 		String id;
 		Expr e;
+		NamedTypeable tmp;
 
 		if (lexer.token != Symbol.IDENT)
 			error.signal("Esperava identificador");
 		id = lexer.getStringValue();
+		if ((tmp = sTable.get(id)) == null ||
+			tmp instanceof Function) {
+			error.signal("Variável " + id + " não declarada");
+		}
 		lexer.nextToken();
 		if (lexer.token != Symbol.ASSIGN)
 			error.signal("Esperava :=");
 		lexer.nextToken();
-		e = expr();	
+		e = expr();
+		if (e.getType() != tmp.getType()) {
+			error.signal("Erro de tipos:\n" + 
+						 id + " é do tipo " + tmp.getType() + "\n" +
+						 e + " é do tipo " + e.getType());	
+		}
 
 		return new AssignExpr(id, e);
 	}
@@ -626,6 +640,8 @@ public class Compiler {
 
 	// PostfixExpr ::= INTLITERAL | FLOATLITERAL | Id | ( Expr ) | CallExpr
 	public PostfixExpr postfixExpr() {
+		NamedTypeable tmp;
+
 		if (lexer.token == Symbol.INTLITERAL) {
 			int val = lexer.getIntValue();
 			lexer.nextToken();
@@ -645,7 +661,11 @@ public class Compiler {
 			else {
 				lexer.rollback();
 				lexer.nextToken();
-				return new Identifier(lexer.getStringValue());
+				if ((tmp = sTable.get(lexer.getStringValue())) == null ||
+					 tmp instanceof Function) {
+					error.signal("Variável " + lexer.getStringValue() + " não declarada");
+				}
+				return (Variable) tmp;
 			}
 		}
 		else if (lexer.token == Symbol.LPAR) {

@@ -13,6 +13,10 @@ public class Param implements Typeable {
 		return type;
 	}
 
+	public String getIdentifier() {
+		return name;
+	}
+
 	private Type type;
 	private String name;
 

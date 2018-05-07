@@ -1,6 +1,6 @@
 package jslc.AST;
 
-public class Variable implements NamedTypeable{
+public class Variable extends PostfixExpr implements NamedTypeable{
 	public Variable (Type type, String identifier) {
 		this.type = type;
 		this.identifier = identifier;
@@ -11,6 +11,10 @@ public class Variable implements NamedTypeable{
 	}
 	public String getIdentifier(){
 		return identifier;
+	}
+
+	public void genC (PW pw) {
+		pw.out.print(identifier);
 	}
 
 	private Type type;

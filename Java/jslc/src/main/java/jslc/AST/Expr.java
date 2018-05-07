@@ -18,7 +18,7 @@ public class Expr implements Typeable {
 	}
 
 	public Type getType () {
-		t = f.getType();
+		t =  f.getType();
 		if (t == Type.voidType) {
 			return t;
 		}
