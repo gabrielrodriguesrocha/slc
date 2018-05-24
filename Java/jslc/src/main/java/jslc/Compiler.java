@@ -388,10 +388,11 @@ public class Compiler {
 		p = ((Function) f).getParams().iterator();
 		while (e.hasNext() && p.hasNext()) {
 			Expr walk_e = e.next();
-			Param walk_p = p.next();
-			if (walk_e.getType() != walk_p.getType()) {
-				error.signal("Parâmetro na posição " + pos + " é do tipo " + walk_p.getType().getName() +
-							 ", esperava parâmetro do tipo " + walk_e.getType().getName());
+            Param walk_p = p.next();
+            if (walk_e.getType() == Type.intType && walk_p.getType() == Type.floatType) { /* Casting */ }
+			else if (walk_e.getType() != walk_p.getType()) {
+				error.signal("Parâmetro na posição " + pos + " é do tipo " + walk_e.getType().getName() +
+							 ", esperava parâmetro do tipo " + walk_p.getType().getName());
 			}
 		}
 		if(lexer.token != Symbol.RPAR)
@@ -734,7 +735,6 @@ public class Compiler {
 	private Lexer lexer;
     private CompilerError error;
 	private SymbolTable sTable;
-	private ArrayList<CallExpr> calls;
 
 }
     
