@@ -560,7 +560,8 @@ public class Compiler {
 			error.signal("Esperava :=");
 		lexer.nextToken();
 		e = expr();
-		if (e.getType() != tmp.getType()) {
+		if (e.getType() == Type.intType && tmp.getType() == Type.floatType) { /* Casting */ }
+		else if (e.getType() != tmp.getType()) {
 			error.signal("Erro de tipos:\n" + 
 						 id + " é do tipo " + tmp.getType().getName() + "\n" +
 						 e + " é do tipo " + e.getType().getName());	
