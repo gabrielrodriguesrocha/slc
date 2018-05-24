@@ -164,9 +164,11 @@ public class Compiler {
 		if ((tmp = sTable.get(id)) != null) {
 			error.signal("Variável já declarada");
 		}
-        lexer.nextToken();
-        if (lexer.token != Symbol.ASSIGN)
-            error.signal("Esperava ':=''");
+		lexer.nextToken();
+		if (lexer.token == Symbol.EQUAL)
+			error.show("Esperava ':=' ao invés de '='");
+        else if (lexer.token != Symbol.ASSIGN)
+			error.signal("Esperava ':='");
         lexer.nextToken();
 		if (lexer.token != Symbol.STRINGLITERAL)
 			error.signal("Esperava string literal");
@@ -315,7 +317,7 @@ public class Compiler {
 					stmts.add(callStmt());
 				}
 				else if (lexer.token == Symbol.EQUAL) {
-					error.signal("Esperava := ao invés de =");
+					error.show("Esperava ':=' ao invés de '='");
 				}
 				else
 					error.signal("Esperava atribuição ou chamada de função");
@@ -569,8 +571,12 @@ public class Compiler {
 			error.signal("Variável " + id + " não declarada");
 		}
 		lexer.nextToken();
-		if (lexer.token != Symbol.ASSIGN)
+		if (lexer.token == Symbol.EQUAL) {
+			error.show("Esperava ':=' ao invés de '='");
+		}
+		else if (lexer.token != Symbol.ASSIGN) {
 			error.signal("Esperava :=");
+		}
 		lexer.nextToken();
 		e = expr();
 		if (e.getType() == Type.intType && tmp.getType() == Type.floatType) { /* Casting */ }
