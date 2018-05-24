@@ -411,6 +411,11 @@ public class Compiler {
 			error.signal ("Esperava '('");
 		lexer.nextToken();
 		ids = idList();
+		for (Variable i : ids) {
+			if (i.getType() == Type.stringType) {
+				error.signal(i.getIdentifier() + " é do tipo string e não pode ser sobrescrita");
+			}
+		}
 		if(lexer.token != Symbol.RPAR)
 			error.signal ("Esperava ')'");
 		lexer.nextToken();
@@ -421,7 +426,7 @@ public class Compiler {
 		return new ReadStmt(ids);
 	}
 	
-	// ReadStmt ::= WRITE ( IdList ) ;
+	// WriteStmt ::= WRITE ( IdList ) ;
 	public WriteStmt writeStmt() {
 		ArrayList<Variable> ids;
 
