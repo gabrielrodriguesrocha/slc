@@ -30,7 +30,6 @@ public class Compiler {
 		error = new CompilerError(lexer, new PrintWriter(outError));
         lexer = new Lexer(p_input, error);
 		sTable = new SymbolTable();
-		calls = new ArrayList<CallExpr>();
 		error.setLexer(lexer);
         lexer.nextToken();
 		Program p = program();
