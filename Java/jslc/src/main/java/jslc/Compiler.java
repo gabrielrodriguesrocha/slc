@@ -43,6 +43,7 @@ public class Compiler {
     public Program program(){
 		ArrayList <Decl> d = new ArrayList<Decl>();
 		ArrayList <FuncDecl> f = new ArrayList<FuncDecl>();
+		NamedTypeable main;
         if (lexer.token != Symbol.PROGRAM)
             error.signal("Esperava PROGRAM");
         lexer.nextToken();
@@ -59,6 +60,12 @@ public class Compiler {
         	f = funcDecl();
         if (lexer.token != Symbol.END)
 			error.signal("Esperava declaração de variável, função ou END");
+		main = sTable.getInGlobal("main");
+		if (main == null ||
+			!(main instanceof Function) ||
+			main.getType() != Type.intType) {
+			error.signal("Programa não possui função main do tipo int");
+		}
 		return new Program(d, f);
     }
 
