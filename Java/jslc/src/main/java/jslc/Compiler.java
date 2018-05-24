@@ -562,8 +562,8 @@ public class Compiler {
 		e = expr();
 		if (e.getType() != tmp.getType()) {
 			error.signal("Erro de tipos:\n" + 
-						 id + " é do tipo " + tmp.getType() + "\n" +
-						 e + " é do tipo " + e.getType());	
+						 id + " é do tipo " + tmp.getType().getName() + "\n" +
+						 e + " é do tipo " + e.getType().getName());	
 		}
 
 		return new AssignExpr(id, e);

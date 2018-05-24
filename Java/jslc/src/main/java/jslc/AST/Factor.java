@@ -25,7 +25,7 @@ public class Factor extends Expr implements Typeable {
 		for (FactorTail f : tail) {
 			if (t != f.getType()) {
 				if ((f.getType() == Type.intType && t == Type.floatType) ||
-					(f.getType() == Type.intType && t == Type.floatType)) {
+					(f.getType() == Type.floatType && t == Type.intType)) {
 					t = Type.floatType;
 				}
 				else if (f.getType() == Type.voidType) {

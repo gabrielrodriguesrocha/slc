@@ -25,7 +25,7 @@ public class Expr implements Typeable {
 		for (ExprTail e : tail) {
 			if (t != e.getType()) {
 				if ((e.getType() == Type.intType && t == Type.floatType) ||
-					(e.getType() == Type.intType && t == Type.floatType)) {
+					(e.getType() == Type.floatType && t == Type.intType)) {
 					t = Type.floatType;
 				}
 				else if (e.getType() == Type.voidType) {

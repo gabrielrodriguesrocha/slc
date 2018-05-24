@@ -7,7 +7,7 @@ import jslc.Error.*;
 public class Lexer {
 
 	// apenas para verificacao lexica
-    public static final boolean DEBUGLEXER = false;
+    public static final boolean DEBUGLEXER = true;
     public static boolean LOOKAHEADCALL = false;
     
     public Lexer( char []input, CompilerError error ) {
@@ -83,6 +83,7 @@ public class Lexer {
         aux += input[tokenPos];
         tokenPos++;
         if (input[tokenPos] == '.') {
+            aux += input[tokenPos];
             isFloat = true;
 			tokenPos++;
         }

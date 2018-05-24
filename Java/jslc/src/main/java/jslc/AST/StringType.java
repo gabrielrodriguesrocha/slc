@@ -9,6 +9,4 @@ public class StringType extends Type {
 	public String getCname() {
 		return "char *";
 	}
-
-	private Symbol name;
 }
