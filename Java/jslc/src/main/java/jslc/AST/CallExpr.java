@@ -12,11 +12,13 @@ public class CallExpr extends PostfixExpr {
 		pw.out.print(id.getIdentifier()+"(");
 		if(exprList != null){
 			itr = exprList.iterator();
-			itr.next().genC(pw);
-
-			while(itr.hasNext()) {
+			if (itr.hasNext()) {
 				itr.next().genC(pw);
-				pw.out.print(", ");
+				
+				while(itr.hasNext()) {
+					itr.next().genC(pw);
+					pw.out.print(", ");
+				}
 			}
 		}
 		pw.out.print(")");
