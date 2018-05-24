@@ -27,6 +27,6 @@ public class Syntax {
     public void lexTest() {
         Compiler compiler = new Compiler();
 
-        Assert.assertNull(compiler.compile(handle.readFile(file)));
+        Assert.assertNull(compiler.compile(handle.readFile(file)), new PrintWriter(System.out));
     }
 }

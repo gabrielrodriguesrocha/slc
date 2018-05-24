@@ -27,6 +27,6 @@ public class Correct {
     public void lexTest() {
         Compiler compiler = new Compiler();
 
-        Assert.assertNotNull(compiler.compile(handle.readFile(file)));
+        Assert.assertNotNull(compiler.compile(handle.readFile(file), new PrintWriter(System.out)));
     }
 }

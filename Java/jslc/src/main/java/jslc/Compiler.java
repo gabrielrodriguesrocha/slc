@@ -6,6 +6,7 @@ import jslc.Error.*;
 
 import jslc.AST.*;
 
+import java.io.PrintWriter;
 import java.util.*;
 
 /*
@@ -25,8 +26,8 @@ public class Compiler {
 	// para geracao de codigo
 	public static final boolean GC = false; 
 
-    public Program compile( char []p_input ) {
-		error = new CompilerError(null);
+    public Program compile( char []p_input, PrintWriter outError ) {
+		error = new CompilerError(lexer, new PrintWriter(outError));
         lexer = new Lexer(p_input, error);
 		sTable = new SymbolTable();
 		calls = new ArrayList<CallExpr>();
