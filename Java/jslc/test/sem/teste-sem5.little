@@ -1,0 +1,9 @@
+PROGRAM test5
+BEGIN
+	FUNCTION INT main()
+	BEGIN
+		STRING A := 3;
+		WRITE(A);
+		RETURN 0;
+	END
+END

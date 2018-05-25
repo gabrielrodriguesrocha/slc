@@ -1,0 +1,14 @@
+PROGRAM test10
+BEGIN
+	FUNCTION INT main()
+	BEGIN
+		FLOAT A, B;
+		INT C;
+		A := 5.7;
+		B := 2.8;
+		C := 5 - 2 + A - (B + 1.9);
+		WRITE(C);
+		RETURN 0;
+	END
+	
+END

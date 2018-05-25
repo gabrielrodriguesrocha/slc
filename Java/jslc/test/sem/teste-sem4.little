@@ -1,0 +1,12 @@
+PROGRAM test4
+BEGIN
+	FUNCTION INT main()
+	BEGIN
+		INT A;
+		FLOAT B;
+		A := 3;
+		 B:= A;
+		WRITE(B);
+		RETURN 0;
+	END
+END

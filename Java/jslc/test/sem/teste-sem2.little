@@ -1,0 +1,10 @@
+PROGRAM test2
+BEGIN
+	FUNCTION INT main()
+	BEGIN
+		INT A;
+		A := 3.5;
+		WRITE(A);
+		RETURN 0;
+	END
+END

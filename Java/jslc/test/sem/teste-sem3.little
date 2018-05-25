@@ -1,0 +1,11 @@
+PROGRAM test3
+BEGIN
+	FUNCTION INT main()
+	BEGIN
+		INT A;
+		FLOAT B;
+		B := .5;
+		A := B;
+		WRITE(A);
+	END
+END

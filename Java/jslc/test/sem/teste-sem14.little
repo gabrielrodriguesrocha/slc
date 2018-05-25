@@ -1,0 +1,15 @@
+PROGRAM test14
+BEGIN
+	FUNCTION INT main()
+	BEGIN
+		STRING C := "E SO ISSO";
+		STRING D := "NAO TEM MAIS JEITO";
+		IF(D = C) THEN
+			WRITE(C);
+		ELSE
+			WRITE(D);
+		ENDIF 
+		RETURN 0;
+	END
+	
+END

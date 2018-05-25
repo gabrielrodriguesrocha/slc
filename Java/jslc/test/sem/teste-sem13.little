@@ -1,0 +1,19 @@
+PROGRAM test13
+BEGIN
+	FUNCTION INT main()
+	BEGIN
+		INT A;
+		FLOAT B;
+		STRING C := "E SO ISSO";
+		STRING D := "NAO TEM MAIS JEITO";
+		B := 1.0;
+		A := 1;
+		IF(A = C) THEN
+			WRITE(C);
+		ELSE
+			WRITE(D);
+		ENDIF 
+		RETURN 0;
+	END
+	
+END

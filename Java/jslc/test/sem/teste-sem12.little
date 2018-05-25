@@ -1,0 +1,17 @@
+PROGRAM test12
+BEGIN
+	FUNCTION VOID faznada(INT A)
+	BEGIN
+	END
+	FUNCTION INT main()
+	BEGIN
+		--FLOAT A;
+		INT A;
+		STRING B :="aaaaaaaaaaaaaa";
+		A := 5;
+		faznada(5 - 2 + A - (B + 1));
+		WRITE(C);
+		RETURN 0;
+	END
+	
+END

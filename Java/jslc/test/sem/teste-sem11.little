@@ -1,0 +1,15 @@
+PROGRAM test11
+BEGIN
+	FUNCTION INT main()
+	BEGIN
+		--FLOAT A;
+		INT A;
+		STRING B :="aaaaaaaaaaaaaa";
+		INT C;
+		A := 5;
+		C := 5 - 2 + A - (B + 1);
+		WRITE(C);
+		RETURN 0;
+	END
+	
+END
