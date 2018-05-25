@@ -579,6 +579,7 @@ public class Compiler {
 		}
 		lexer.nextToken();
 		e = expr();
+		System.out.println(e.getType().getName());
 		if (e.getType() == Type.intType && tmp.getType() == Type.floatType) { /* Casting */ }
 		else if (e.getType() != tmp.getType()) {
 			error.signal("Erro de tipos:\n" + 
@@ -684,6 +685,9 @@ public class Compiler {
 				if ((tmp = sTable.get(lexer.getStringValue())) == null ||
 					 tmp instanceof Function) {
 					error.signal("Variável " + lexer.getStringValue() + " não declarada");
+				}
+				else if (tmp.getType() instanceof StringType) {
+					error.signal("Variável " + lexer.getStringValue() + " é constante string");
 				}
 				return (Variable) tmp;
 			}
