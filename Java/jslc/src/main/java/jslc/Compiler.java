@@ -247,24 +247,26 @@ public class Compiler {
 	}
 	
 	boolean checkReturnStmt(ArrayList<Stmt> stmts) {
+		boolean hasReturnStmt = false;
+
 		for (Stmt i : stmts) { // Muito primitivo
 			if (i instanceof ReturnStmt) {
-				return true;
+				hasReturnStmt = hasReturnStmt || true;
 			}
 			else if (i instanceof IfStmt) {
 				if (((IfStmt) i).getElseStmt() != null) {
-					return checkReturnStmt(((IfStmt) i).getStmts()) ||
+					hasReturnStmt = hasReturnStmt || checkReturnStmt(((IfStmt) i).getStmts()) ||
 						   checkReturnStmt(((IfStmt) i).getElseStmt().getStmts());
 				}
 				else {
-					return checkReturnStmt(((IfStmt) i).getStmts());
+					hasReturnStmt = hasReturnStmt || checkReturnStmt(((IfStmt) i).getStmts());
 				}
 			}
 			else if (i instanceof ForStmt) {
-				return checkReturnStmt(((ForStmt) i).getStmts());
+				hasReturnStmt = hasReturnStmt || checkReturnStmt(((ForStmt) i).getStmts());
 			}
 		}
-		return false;
+		return hasReturnStmt;
 	}
 
 	// ParamDeclList ::= [VarType Id ,]* | VarType Id
