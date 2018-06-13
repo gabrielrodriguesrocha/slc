@@ -87,6 +87,7 @@ public class Compiler {
 		 if (!isVarType() &&
 			  lexer.token != Symbol.STRING &&
 			  lexer.token != Symbol.FUNCTION &&
+			  lexer.token != Symbol.END &&
 			  !statementSymbol()) {
 		 	error.signal("Tipo de variável não suportado, esperava STRING, INT ou FLOAT");
 		}
@@ -231,7 +232,7 @@ public class Compiler {
 				decls = decl();
 			if (statementSymbol())
 				stmts = stmtList();
-			hasReturnStmt = checkReturnStmt(stmts);
+			hasReturnStmt = checkReturnStmt(id, type, stmts);
 			if ((type == Type.intType || type == Type.floatType) &&
 				 !hasReturnStmt) {
 				error.signal("A função " + id + " não retorna");
@@ -246,24 +247,28 @@ public class Compiler {
 		return functions;
 	}
 	
-	boolean checkReturnStmt(ArrayList<Stmt> stmts) {
+	boolean checkReturnStmt(String id, Type t, ArrayList<Stmt> stmts) {
 		boolean hasReturnStmt = false;
 
 		for (Stmt i : stmts) { // Muito primitivo
 			if (i instanceof ReturnStmt) {
+				if (((ReturnStmt) i).getExpr().getType() != t) {
+					error.signal("A função " + id + " é do tipo " + t.getCname() );
+				}
 				hasReturnStmt = hasReturnStmt || true;
+				break;
 			}
 			else if (i instanceof IfStmt) {
 				if (((IfStmt) i).getElseStmt() != null) {
-					hasReturnStmt = hasReturnStmt || checkReturnStmt(((IfStmt) i).getStmts()) ||
-						   checkReturnStmt(((IfStmt) i).getElseStmt().getStmts());
+					hasReturnStmt = hasReturnStmt || checkReturnStmt(id, t, ((IfStmt) i).getStmts()) ||
+						   checkReturnStmt(id, t, ((IfStmt) i).getElseStmt().getStmts());
 				}
 				else {
-					hasReturnStmt = hasReturnStmt || checkReturnStmt(((IfStmt) i).getStmts());
+					hasReturnStmt = hasReturnStmt || checkReturnStmt(id, t, ((IfStmt) i).getStmts());
 				}
 			}
 			else if (i instanceof ForStmt) {
-				hasReturnStmt = hasReturnStmt || checkReturnStmt(((ForStmt) i).getStmts());
+				hasReturnStmt = hasReturnStmt || checkReturnStmt(id, t, ((ForStmt) i).getStmts());
 			}
 		}
 		return hasReturnStmt;

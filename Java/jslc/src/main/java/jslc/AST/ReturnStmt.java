@@ -11,5 +11,9 @@ public class ReturnStmt extends Stmt {
 		pw.out.println(");");
 	}
 
+	public Expr getExpr() {
+		return e;
+	}
+
 	private Expr e;
 }
